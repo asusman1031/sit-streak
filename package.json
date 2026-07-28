@@ -6,8 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "sanity": "tsx scripts/sanity.ts",
-    "icons": "node scripts/gen-icons.mjs"
+    "sanity": "tsx scripts/sanity.ts"
   },
   "dependencies": {
     "next": "16.2.12",

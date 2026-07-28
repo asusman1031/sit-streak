@@ -1,7 +1,7 @@
 // Offline support: it's a timer and a counter, it must work with no network.
 // Navigations: network-first, cache fallback. Static assets: cache-first.
-const CACHE = "sitstreak-v1";
-const PRECACHE = ["/", "/icon-192.png", "/icon-512.png"];
+const CACHE = "sitstreak-v2"; // bumped: new StreakPrize logo assets
+const PRECACHE = ["/", "/icon-192.png", "/icon-512.png", "/icon-512-maskable.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

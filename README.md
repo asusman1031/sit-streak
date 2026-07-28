@@ -38,12 +38,18 @@ npm run sanity   # logic checks: rollover, DST, windows, streaks, double-credit 
 npm run icons    # regenerate PWA icons (scripts/gen-icons.mjs)
 ```
 
+## Branding
+
+Logo and lockups are Sawyer's StreakPrize kit — SVG sources in `assets/`,
+rendered PNGs in `public/` (home-screen icons) and `app/icon.png` (favicon).
+The maskable icon (`public/icon-512-maskable.png`) is the full-bleed variant
+of `assets/icon.svg` (rx=0).
+
 ## Before shipping to Sawyer
 
-1. Theme is still the placeholder — swap the CSS tokens at the top of
-   `app/globals.css` when he picks one, then `npm run icons`.
-2. Deploy to Vercel, open on his phone, **Add to Home Screen**.
-3. Decide milestone rewards with him so the first 10-day badge already means
+1. Live at https://streak-prize.vercel.app — open on his phone,
+   **Add to Home Screen**.
+2. Decide milestone rewards with him so the first 10-day badge already means
    something.
 
 ## v2 (planned)

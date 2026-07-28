@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6366F1"/>
+      <stop offset="0.55" stop-color="#4338CA"/>
+      <stop offset="1" stop-color="#312E81"/>
+    </linearGradient>
+    <linearGradient id="porc" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#DBE1FF"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <g stroke="#312E81" stroke-width="14" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M158 292 L158 198 C158 126 200 82 256 82 C312 82 354 126 354 198 L354 292 Z" fill="url(#porc)"/>
+  </g>
+  <g stroke="#312E81" stroke-width="14" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M118 330 C122 400 176 438 256 438 C336 438 390 400 394 330 Z" fill="url(#porc)"/>
+    <ellipse cx="256" cy="326" rx="150" ry="42" fill="url(#porc)"/>
+    <ellipse cx="256" cy="328" rx="86" ry="21" fill="#A5B4FC"/>
+    <path d="M206 434 L206 452 Q206 462 216 462 L296 462 Q306 462 306 452 L306 434 Z" fill="#A5B4FC"/>
+  </g>
+</svg>

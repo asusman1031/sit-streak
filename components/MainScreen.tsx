@@ -50,6 +50,16 @@ export function MainScreen({ data, ws, now, onStart, onOpenParent }: Props) {
         className="absolute right-0 top-0 z-10 h-16 w-16 opacity-0"
       />
 
+      {/* Brand row: Sawyer's logo + wordmark */}
+      <div className="mb-6 flex items-center gap-2.5">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/icon-192.png" alt="" className="h-9 w-9 rounded-lg" />
+        <div className="text-2xl font-black tracking-tight">
+          <span className="text-white">Streak</span>
+          <span className="text-amber-400">Prize</span>
+        </div>
+      </div>
+
       {/* Streak header */}
       <div
         className="flex select-none flex-col items-center"
