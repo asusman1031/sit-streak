@@ -1,10 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
+import { Baloo_2 } from "next/font/google";
 import "./globals.css";
 import { RegisterSW } from "@/components/RegisterSW";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Chunky, rounded, and fun — fits a kid's streak app.
+const baloo = Baloo_2({
+  variable: "--font-baloo",
   subsets: ["latin"],
 });
 
@@ -37,7 +38,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} h-full antialiased`}>
+    <html lang="en" className={`${baloo.variable} h-full antialiased`}>
       <body className="min-h-full">
         {children}
         <RegisterSW />

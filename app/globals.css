@@ -15,7 +15,7 @@ body {
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-baloo), system-ui, sans-serif;
   background: var(--bg-from);
 }
 
