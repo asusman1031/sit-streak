@@ -2,25 +2,17 @@
 
 import { useEffect, useRef, useState } from "react";
 import { runConfetti } from "@/lib/confetti";
+import { MILESTONE_EMOJI } from "@/lib/types";
 
 interface Props {
   streak: number;
   milestone: number | null;
-  variant: number;
   onDismiss: () => void;
 }
 
-const MILESTONE_EMOJI: Record<number, string> = {
-  3: "🌟",
-  7: "🏅",
-  14: "🏆",
-  30: "👑",
-  60: "🚀",
-};
-
-/** Day complete: the payoff. Full-screen confetti, the streak number
- *  animating up, dismissible by tap. Milestones run longer and gold. */
-export function Celebration({ streak, milestone, variant, onDismiss }: Props) {
+/** Day complete: the payoff. Confetti every day; gold fireworks on 10-day
+ *  milestones. Streak number animates up, dismissible by tap. */
+export function Celebration({ streak, milestone, onDismiss }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [shown, setShown] = useState(Math.max(0, streak - 1));
   const duration = milestone ? 7000 : 4000;
@@ -28,9 +20,10 @@ export function Celebration({ streak, milestone, variant, onDismiss }: Props) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const stop = runConfetti(canvas, variant, milestone != null, duration);
+    // variant 0 = confetti rain; milestones switch to gold star fireworks
+    const stop = runConfetti(canvas, milestone ? 3 : 0, milestone != null, duration);
     return stop;
-  }, [variant, milestone, duration]);
+  }, [milestone, duration]);
 
   // Count the streak number up after a beat.
   useEffect(() => {

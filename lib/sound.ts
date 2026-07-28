@@ -48,6 +48,37 @@ export function vibrate(pattern: number | number[]): void {
   }
 }
 
+/** Toilet flush for the timer-done poop finale: filtered noise sweep + glugs. */
+export function playFlush(): void {
+  ensureAudio();
+  if (!ctx) return;
+  const t0 = ctx.currentTime;
+  const dur = 1.4;
+  const len = Math.floor(ctx.sampleRate * dur);
+  const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+  const ch = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) ch[i] = Math.random() * 2 - 1;
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  const filter = ctx.createBiquadFilter();
+  filter.type = "lowpass";
+  filter.Q.value = 2;
+  filter.frequency.setValueAtTime(1500, t0);
+  filter.frequency.exponentialRampToValueAtTime(180, t0 + dur);
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.0001, t0);
+  gain.gain.exponentialRampToValueAtTime(0.45, t0 + 0.08);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  src.connect(filter).connect(gain).connect(ctx.destination);
+  src.start(t0);
+  src.stop(t0 + dur);
+  // descending glugs as it goes down the drain
+  note(320, 0.45, 0.12, "sine", 0.22);
+  note(250, 0.7, 0.12, "sine", 0.22);
+  note(190, 0.95, 0.16, "sine", 0.22);
+  vibrate([80, 60, 250]);
+}
+
 /** Timer hit 0:00 — clear, happy "done" chime. He may not be looking. */
 export function playTimerDone(): void {
   ensureAudio();

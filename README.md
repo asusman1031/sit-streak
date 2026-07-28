@@ -1,4 +1,4 @@
-# Sit Streak (placeholder name — Sawyer names it)
+# StreakPrize (named by Sawyer)
 
 A single-purpose PWA: two 5-minute sits per day, one screen, a streak, and a
 disproportionately good celebration. Built to spec v1.
@@ -13,10 +13,13 @@ disproportionately good celebration. Built to spec v1.
 - **Windows**: morning sit before 9:00 AM, afternoon after 3:00 PM
   (parent-adjustable). Timezone `America/New_York`, day rolls over at 4:00 AM.
 - **Streak**: both sits = day complete = +1, at the moment the second sit ends.
-  Milestone badges at 3/7/14/30/60 with a bigger gold celebration. Broken streak
-  shows a neutral "Start a new streak" — no shame copy anywhere.
-- **Celebrations**: 4 rotating confetti variants (rain, starburst, emoji rain,
-  fireworks), synthesized fanfares (WebAudio, no assets), count-up streak
+  Milestone badges every 10 days (Sawyer's rule) with a longer gold fireworks
+  celebration. Broken streak shows a neutral "Start a new streak" — no shame
+  copy anywhere.
+- **Timer finish**: dancing 💩 that flushes away with a synthesized flush sound
+  and swirl-out (Sawyer's pick; parent-panel toggle to disable).
+- **Celebrations**: confetti on every completed day, gold fireworks on 10-day
+  milestones, synthesized fanfares (WebAudio, no assets), count-up streak
   number, tap to dismiss.
 - **Parent panel** (hidden: long-press the streak number, or 5 rapid taps on the
   top-right corner): credit a day, set the streak, adjust window times,
@@ -37,10 +40,11 @@ npm run icons    # regenerate PWA icons (scripts/gen-icons.mjs)
 
 ## Before shipping to Sawyer
 
-1. Let him pick the **name** and **theme** — swap `metadata`/`manifest` names and
-   the CSS tokens at the top of `app/globals.css`, then `npm run icons`.
+1. Theme is still the placeholder — swap the CSS tokens at the top of
+   `app/globals.css` when he picks one, then `npm run icons`.
 2. Deploy to Vercel, open on his phone, **Add to Home Screen**.
-3. Decide milestone rewards with him so the 3-day badge already means something.
+3. Decide milestone rewards with him so the first 10-day badge already means
+   something.
 
 ## v2 (planned)
 

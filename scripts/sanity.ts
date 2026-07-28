@@ -99,16 +99,28 @@ const at = (h: number, m = 0) => Date.UTC(2026, 6, 28, h + 4, m); // EDT: UTC-4
   check("streak unchanged on double credit", r2.data.meta.current_streak, before);
 }
 
-// milestone at 3
+// milestone at 10 (Sawyer's rule), none at 3
 {
-  let d = dataWith({
+  const nine: Record<string, Partial<AppData["days"][string]>> = {
+    "2026-07-28": { morning_complete: true },
+  };
+  for (let i = 1; i <= 9; i++) {
+    const key = `2026-07-${String(28 - i).padStart(2, "0")}`;
+    nine[key] = { day_complete: true, morning_complete: true, afternoon_complete: true };
+  }
+  const r = creditSit(dataWith(nine), "afternoon", "2026-07-28", at(16));
+  check("streak 10 after completion", r.newStreak, 10);
+  check("milestone at 10", r.milestone, 10);
+  check("milestones_earned", r.data.meta.milestones_earned, [10]);
+}
+{
+  const d = dataWith({
     "2026-07-26": { day_complete: true, morning_complete: true, afternoon_complete: true },
     "2026-07-27": { day_complete: true, morning_complete: true, afternoon_complete: true },
     "2026-07-28": { morning_complete: true },
   });
   const r = creditSit(d, "afternoon", "2026-07-28", at(16));
-  check("milestone at 3", r.milestone, 3);
-  check("milestones_earned", r.data.meta.milestones_earned, [3]);
+  check("no milestone at 3", r.milestone, null);
 }
 
 // gap breaks streak

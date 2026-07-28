@@ -9,12 +9,14 @@ import { MainScreen } from "./MainScreen";
 import { TimerScreen } from "./TimerScreen";
 import { Celebration } from "./Celebration";
 import { SitDoneOverlay } from "./SitDoneOverlay";
+import { FlushOverlay } from "./FlushOverlay";
 import { ParentPanel } from "./ParentPanel";
 
-type Overlay =
+type Reward =
   | { type: "sitDone"; window: SitWindow }
-  | { type: "celebration"; streak: number; milestone: number | null }
-  | null;
+  | { type: "celebration"; streak: number; milestone: number | null; variant: number };
+
+type Overlay = Reward | { type: "flush"; after: Reward } | null;
 
 export default function App() {
   const [data, setData] = useState<AppData | null>(null);
@@ -31,6 +33,25 @@ export default function App() {
   // Stable dismiss: the overlays arm auto-dismiss timers keyed on this
   // callback, and the app re-renders every second on the clock tick.
   const dismissOverlay = useCallback(() => setOverlay(null), []);
+
+  // Show a reward screen and play its sound.
+  const showReward = useCallback((reward: Reward) => {
+    setOverlay(reward);
+    if (reward.type === "celebration") {
+      setTimeout(() => {
+        if (reward.milestone) playMilestone();
+        else playCelebration(reward.variant);
+      }, 500);
+    } else {
+      setTimeout(() => playSitDone(), 400);
+    }
+  }, []);
+
+  // The flush finale hands off to whichever reward comes next.
+  const flushDone = useCallback(
+    (after: Reward) => () => showReward(after),
+    [showReward]
+  );
 
   useEffect(() => {
     setData(loadData());
@@ -61,20 +82,23 @@ export default function App() {
     completing.current = true;
     const result = creditSit(data, t.window, t.dateKey, t.startedAt);
     commit(result.data);
-    playTimerDone();
-    if (result.dayCompleted) {
-      const variant = result.data.meta.celebration_index;
-      setOverlay({ type: "celebration", streak: result.newStreak, milestone: result.milestone });
-      setTimeout(() => {
-        if (result.milestone) playMilestone();
-        else playCelebration(variant);
-      }, 700);
+    const reward: Reward = result.dayCompleted
+      ? {
+          type: "celebration",
+          streak: result.newStreak,
+          milestone: result.milestone,
+          variant: result.data.meta.celebration_index,
+        }
+      : { type: "sitDone", window: t.window };
+    if (data.meta.settings.flushFx) {
+      // Sawyer's finale: dancing poop, flush, swirl out — then the reward.
+      setOverlay({ type: "flush", after: reward });
     } else {
-      setOverlay({ type: "sitDone", window: t.window });
-      setTimeout(() => playSitDone(), 600);
+      playTimerDone();
+      showReward(reward);
     }
     completing.current = false;
-  }, [data, now, commit]);
+  }, [data, now, commit, showReward]);
 
   if (!data) {
     return <main className="app-bg flex min-h-dvh items-center justify-center" />;
@@ -115,6 +139,7 @@ export default function App() {
         onStart={startSit}
         onOpenParent={() => setParentOpen(true)}
       />
+      {overlay?.type === "flush" && <FlushOverlay onDone={flushDone(overlay.after)} />}
       {overlay?.type === "sitDone" && (
         <SitDoneOverlay
           window={overlay.window}
@@ -126,7 +151,6 @@ export default function App() {
         <Celebration
           streak={overlay.streak}
           milestone={overlay.milestone}
-          variant={data.meta.celebration_index}
           onDismiss={dismissOverlay}
         />
       )}

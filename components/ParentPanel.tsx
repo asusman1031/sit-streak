@@ -45,9 +45,20 @@ export function ParentPanel({ data, now, onCommit, onClose }: Props) {
     if (!/^\d{2}:\d{2}$/.test(morningEnd) || !/^\d{2}:\d{2}$/.test(afternoonStart)) return;
     onCommit({
       ...data,
-      meta: { ...data.meta, settings: { morningEnd, afternoonStart } },
+      meta: {
+        ...data.meta,
+        settings: { ...data.meta.settings, morningEnd, afternoonStart },
+      },
     });
     flash("Window times saved");
+  };
+
+  const handleToggleFlush = (on: boolean) => {
+    onCommit({
+      ...data,
+      meta: { ...data.meta, settings: { ...data.meta.settings, flushFx: on } },
+    });
+    flash(on ? "Flush animation on" : "Flush animation off");
   };
 
   const handleAddLog = () => {
@@ -158,6 +169,17 @@ export function ParentPanel({ data, now, onCommit, onClose }: Props) {
           <button onClick={handleSaveWindows} className="btn-primary self-start">
             Save windows
           </button>
+        </Section>
+
+        <Section title="Timer finish">
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={data.meta.settings.flushFx}
+              onChange={(e) => handleToggleFlush(e.target.checked)}
+            />
+            💩 flush animation when the timer ends (Sawyer&apos;s pick)
+          </label>
         </Section>
 
         <Section title="Output log (parent only)">

@@ -76,6 +76,49 @@ body {
   animation: count-pop 0.6s cubic-bezier(0.2, 1.4, 0.4, 1) both;
 }
 
+@keyframes poop-dance {
+  0%,
+  100% {
+    transform: rotate(-12deg) translateY(0) scale(1);
+  }
+  25% {
+    transform: rotate(10deg) translateY(-18px) scale(1.06);
+  }
+  50% {
+    transform: rotate(-10deg) translateY(0) scale(1);
+  }
+  75% {
+    transform: rotate(12deg) translateY(-18px) scale(1.06);
+  }
+}
+.poop-dance {
+  animation: poop-dance 0.55s ease-in-out infinite;
+}
+
+/* rotate-then-translate makes the translate happen in the rotated frame,
+   which reads as a swirling, down-the-drain spiral */
+@keyframes swirl-out {
+  0% {
+    transform: rotate(0deg) scale(1) translate(0, 0);
+    opacity: 1;
+  }
+  30% {
+    transform: rotate(260deg) scale(0.8) translate(46px, 12px);
+    opacity: 1;
+  }
+  65% {
+    transform: rotate(640deg) scale(0.45) translate(28px, 40px);
+    opacity: 0.9;
+  }
+  100% {
+    transform: rotate(1180deg) scale(0.02) translate(0, 90px);
+    opacity: 0;
+  }
+}
+.swirl-out {
+  animation: swirl-out 1.35s cubic-bezier(0.45, 0, 0.85, 0.4) both;
+}
+
 @keyframes bounce-slow {
   0%,
   100% {

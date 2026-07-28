@@ -8,14 +8,14 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-// "Streak" is a placeholder — Sawyer names the app before v1.1.
+// Sawyer named it.
 export const metadata: Metadata = {
-  title: "Streak",
+  title: "StreakPrize",
   description: "5 minutes, twice a day.",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Streak",
+    title: "StreakPrize",
   },
   icons: {
     apple: "/icon-180.png",

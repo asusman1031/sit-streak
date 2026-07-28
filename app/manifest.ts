@@ -1,10 +1,10 @@
 import type { MetadataRoute } from "next";
 
-// Name is a placeholder until Sawyer picks the real one.
+// Sawyer named it.
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Streak",
-    short_name: "Streak",
+    name: "StreakPrize",
+    short_name: "StreakPrize",
     description: "5 minutes, twice a day.",
     start_url: "/",
     display: "standalone",

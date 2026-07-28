@@ -48,7 +48,7 @@ function drawStar(ctx: CanvasRenderingContext2D, size: number): void {
  * variant 1: center starburst
  * variant 2: emoji rain
  * variant 3: fireworks
- * milestone: long gold starburst + rain
+ * milestone: long gold star fireworks (Sawyer's 10-day rule)
  */
 export function runConfetti(
   canvas: HTMLCanvasElement,
@@ -67,7 +67,7 @@ export function runConfetti(
   ctx.scale(dpr, dpr);
 
   const palette = milestone ? GOLD : PALETTES[variant % PALETTES.length];
-  const mode = milestone ? 99 : variant % 4;
+  const mode = milestone ? 3 : variant % 4;
   const particles: Particle[] = [];
 
   function spawnRain(count: number, emoji: boolean): void {
@@ -114,10 +114,7 @@ export function runConfetti(
   if (mode === 0) spawnRain(160, false);
   if (mode === 1) spawnBurst(w / 2, h * 0.4, 180, true);
   if (mode === 2) spawnRain(70, true);
-  if (mode === 99) {
-    spawnBurst(w / 2, h * 0.35, 220, true);
-    spawnRain(120, false);
-  }
+  if (mode === 3) spawnBurst(w / 2, h * 0.35, milestone ? 120 : 80, milestone);
 
   let last = performance.now();
   const start = last;
@@ -132,8 +129,8 @@ export function runConfetti(
     const elapsed = now - start;
 
     // fireworks keep launching through the show
-    if ((mode === 3 || mode === 99) && elapsed < durationMs - 900 && now >= nextFirework) {
-      spawnBurst(rand(w * 0.2, w * 0.8), rand(h * 0.15, h * 0.5), 70, mode === 99);
+    if (mode === 3 && elapsed < durationMs - 900 && now >= nextFirework) {
+      spawnBurst(rand(w * 0.2, w * 0.8), rand(h * 0.15, h * 0.5), 70, milestone);
       nextFirework = now + rand(280, 600);
     }
     // rain variants keep topping up early in the show

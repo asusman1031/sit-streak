@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { AppData } from "@/lib/types";
+import { AppData, MILESTONE_EMOJI } from "@/lib/types";
 import { WindowState } from "@/lib/logic";
 import { formatWait, friendlyClock } from "@/lib/time";
 
@@ -12,14 +12,6 @@ interface Props {
   onStart: () => void;
   onOpenParent: () => void;
 }
-
-const MILESTONE_EMOJI: Record<number, string> = {
-  3: "🌟",
-  7: "🏅",
-  14: "🏆",
-  30: "👑",
-  60: "🚀",
-};
 
 export function MainScreen({ data, ws, now, onStart, onOpenParent }: Props) {
   const streak = data.meta.current_streak;

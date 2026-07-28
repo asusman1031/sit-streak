@@ -34,6 +34,7 @@ export interface StreakAnchor {
 export interface Settings {
   morningEnd: string; // "HH:MM", morning sit completable before this time
   afternoonStart: string; // "HH:MM", afternoon sit completable after this time
+  flushFx: boolean; // Sawyer's dancing-poop flush finale at 0:00 (parent can disable)
 }
 
 export interface Meta {
@@ -61,11 +62,26 @@ export interface AppData {
 }
 
 export const SIT_DURATION_MS = 5 * 60 * 1000;
-export const MILESTONES = [3, 7, 14, 30, 60];
+// Sawyer's rule: every 10 days is a fireworks milestone.
+export const MILESTONES = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+
+export const MILESTONE_EMOJI: Record<number, string> = {
+  10: "🌟",
+  20: "🏅",
+  30: "🏆",
+  40: "👑",
+  50: "🚀",
+  60: "🎆",
+  70: "💎",
+  80: "🪩",
+  90: "🦄",
+  100: "🏰",
+};
 
 export const DEFAULT_SETTINGS: Settings = {
   morningEnd: "09:00",
   afternoonStart: "15:00",
+  flushFx: true,
 };
 
 export function emptyData(): AppData {
