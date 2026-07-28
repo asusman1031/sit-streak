@@ -6,23 +6,29 @@
       <stop offset="1" stop-color="#7F1D1D"/>
     </linearGradient>
     <linearGradient id="poo" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#B07D52"/>
-      <stop offset="0.5" stop-color="#8B5A2B"/>
-      <stop offset="1" stop-color="#6B4226"/>
+      <stop offset="0" stop-color="#D08159"/>
+      <stop offset="0.5" stop-color="#BF6952"/>
+      <stop offset="1" stop-color="#9C4F38"/>
     </linearGradient>
     <linearGradient id="star" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#FFE066"/>
       <stop offset="1" stop-color="#F59E0B"/>
     </linearGradient>
     <linearGradient id="gem" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#CFFAFE"/>
+      <stop offset="0" stop-color="#E0FBFF"/>
+      <stop offset="0.45" stop-color="#7DEBFA"/>
       <stop offset="1" stop-color="#22D3EE"/>
     </linearGradient>
     <path id="starp" d="M0-34 L8.2-11.3 L32.3-10.5 L13.3 4.3 L20 27.5 L0 14 L-20 27.5 L-13.3 4.3 L-32.3-10.5 L-8.2-11.3 Z"/>
+    <g id="gemp">
+      <path d="M-14 -7 L-7 -16 L7 -16 L14 -7 L0 13 Z" fill="url(#gem)" stroke="#0E7490" stroke-width="3.5" stroke-linejoin="round"/>
+      <path d="M-14 -7 L14 -7 M-7 -16 L-4 -7 L0 13 M7 -16 L4 -7" fill="none" stroke="#0E7490" stroke-width="2" stroke-linejoin="round" opacity="0.7"/>
+      <circle cx="-5" cy="-11" r="2.4" fill="#FFFFFF" opacity="0.95"/>
+    </g>
   </defs>
   <rect width="512" height="512" rx="112" fill="url(#bg)"/>
   <!-- poop silhouette: three stacked tiers + soft-serve curl, one path -->
-  <path fill="url(#poo)" stroke="#4E2E17" stroke-width="12" stroke-linejoin="round" d="
+  <path fill="url(#poo)" stroke="#6E3325" stroke-width="10" stroke-linejoin="round" d="
     M130 448
     Q84 448 84 404
     C84 372 106 348 142 336
@@ -43,20 +49,21 @@
     Q428 448 382 448
     Z"/>
   <!-- soft top-left sheen -->
-  <ellipse cx="215" cy="150" rx="52" ry="30" fill="#FFFFFF" opacity="0.18" transform="rotate(-24 215 150)"/>
+  <ellipse cx="215" cy="150" rx="52" ry="30" fill="#FFFFFF" opacity="0.20" transform="rotate(-24 215 150)"/>
   <!-- star eyes -->
   <g fill="url(#star)" stroke="#B45309" stroke-width="6" stroke-linejoin="round">
-    <use href="#starp" transform="translate(190 290) rotate(-10) scale(1.18)"/>
-    <use href="#starp" transform="translate(322 290) rotate(10) scale(1.18)"/>
+    <use href="#starp" transform="translate(188 278) rotate(-10) scale(1.2)"/>
+    <use href="#starp" transform="translate(324 278) rotate(10) scale(1.2)"/>
   </g>
-  <!-- diamond mouth -->
-  <g stroke="#0E7490" stroke-width="7" stroke-linejoin="round">
-    <path d="M232 350 L280 350 L302 372 L256 414 L210 372 Z" fill="url(#gem)"/>
-    <path d="M232 350 L220 372 L292 372 L280 350" fill="none" stroke-width="5"/>
-    <path d="M220 372 L256 414 M292 372 L256 414" fill="none" stroke-width="5"/>
+  <!-- big open emoji smile, full of diamonds -->
+  <path d="M172 334 Q256 356 340 334 Q334 412 256 418 Q178 412 172 334 Z" fill="#5C2018" stroke="#6E3325" stroke-width="8" stroke-linejoin="round"/>
+  <g>
+    <use href="#gemp" transform="translate(203 362) scale(0.92)"/>
+    <use href="#gemp" transform="translate(238 372)"/>
+    <use href="#gemp" transform="translate(274 372)"/>
+    <use href="#gemp" transform="translate(309 362) scale(0.92)"/>
   </g>
   <!-- sparkles -->
-  <circle cx="238" cy="360" r="6" fill="#FFFFFF" opacity="0.9"/>
   <circle cx="358" cy="120" r="8" fill="#FFFFFF" opacity="0.7"/>
   <circle cx="146" cy="96" r="5" fill="#FFFFFF" opacity="0.6"/>
 </svg>
