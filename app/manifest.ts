@@ -1,16 +1,16 @@
 import type { MetadataRoute } from "next";
 
-// Sawyer named it.
+// Ashton's app: Poppy Streaks.
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "StreakPrize",
-    short_name: "StreakPrize",
+    name: "Poppy Streaks",
+    short_name: "Poppy Streaks",
     description: "5 minutes, twice a day.",
     start_url: "/",
     display: "standalone",
     orientation: "portrait",
-    background_color: "#4338ca",
-    theme_color: "#4338ca",
+    background_color: "#dc2626",
+    theme_color: "#dc2626",
     icons: [
       {
         src: "/icon-192.png",

@@ -1,29 +1,49 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 500" width="560" height="500">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#6366F1"/>
-      <stop offset="0.55" stop-color="#4338CA"/>
-      <stop offset="1" stop-color="#312E81"/>
+      <stop offset="0" stop-color="#F87171"/>
+      <stop offset="0.55" stop-color="#DC2626"/>
+      <stop offset="1" stop-color="#7F1D1D"/>
     </linearGradient>
-    <linearGradient id="porc" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#FFFFFF"/>
-      <stop offset="1" stop-color="#DBE1FF"/>
+    <linearGradient id="poo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#B07D52"/>
+      <stop offset="0.5" stop-color="#8B5A2B"/>
+      <stop offset="1" stop-color="#6B4226"/>
     </linearGradient>
+    <linearGradient id="star" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFE066"/>
+      <stop offset="1" stop-color="#F59E0B"/>
+    </linearGradient>
+    <linearGradient id="gem" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#CFFAFE"/>
+      <stop offset="1" stop-color="#22D3EE"/>
+    </linearGradient>
+    <path id="starp" d="M0-34 L8.2-11.3 L32.3-10.5 L13.3 4.3 L20 27.5 L0 14 L-20 27.5 L-13.3 4.3 L-32.3-10.5 L-8.2-11.3 Z"/>
   </defs>
   <g transform="translate(130,10) scale(0.586)">
     <rect width="512" height="512" rx="112" fill="url(#bg)"/>
-
-  <g stroke="#312E81" stroke-width="14" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M158 292 L158 198 C158 126 200 82 256 82 C312 82 354 126 354 198 L354 292 Z" fill="url(#porc)"/>
+    <path fill="url(#poo)" stroke="#4E2E17" stroke-width="12" stroke-linejoin="round" d="
+      M130 448 Q84 448 84 404 C84 372 106 348 142 336 C116 326 102 302 104 278
+      C106 246 130 226 162 220 C142 210 132 190 136 168 C141 140 166 124 194 122
+      C190 96 202 72 226 60 C244 51 268 46 284 56 C296 44 314 48 316 62
+      C318 74 308 84 296 86 C312 96 322 112 324 130 C344 134 362 148 368 168
+      C374 190 364 208 350 220 C382 226 406 248 408 278 C410 302 396 326 370 336
+      C406 348 428 372 428 404 Q428 448 382 448 Z"/>
+    <ellipse cx="215" cy="150" rx="52" ry="30" fill="#FFFFFF" opacity="0.18" transform="rotate(-24 215 150)"/>
+    <g fill="url(#star)" stroke="#B45309" stroke-width="6" stroke-linejoin="round">
+      <use href="#starp" transform="translate(190 290) rotate(-10) scale(1.18)"/>
+      <use href="#starp" transform="translate(322 290) rotate(10) scale(1.18)"/>
+    </g>
+    <g stroke="#0E7490" stroke-width="7" stroke-linejoin="round">
+      <path d="M232 350 L280 350 L302 372 L256 414 L210 372 Z" fill="url(#gem)"/>
+      <path d="M232 350 L220 372 L292 372 L280 350" fill="none" stroke-width="5"/>
+      <path d="M220 372 L256 414 M292 372 L256 414" fill="none" stroke-width="5"/>
+    </g>
+    <circle cx="238" cy="360" r="6" fill="#FFFFFF" opacity="0.9"/>
+    <circle cx="358" cy="120" r="8" fill="#FFFFFF" opacity="0.7"/>
+    <circle cx="146" cy="96" r="5" fill="#FFFFFF" opacity="0.6"/>
   </g>
-  <g stroke="#312E81" stroke-width="14" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M118 330 C122 400 176 438 256 438 C336 438 390 400 394 330 Z" fill="url(#porc)"/>
-    <ellipse cx="256" cy="326" rx="150" ry="42" fill="url(#porc)"/>
-    <ellipse cx="256" cy="328" rx="86" ry="21" fill="#A5B4FC"/>
-    <path d="M206 434 L206 452 Q206 462 216 462 L296 462 Q306 462 306 452 L306 434 Z" fill="#A5B4FC"/>
-  </g>
-  </g>
-  <text x="280" y="450" text-anchor="middle" font-family="Nunito, 'Baloo 2', Fredoka, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="800" font-size="72" letter-spacing="-1">
-    <tspan fill="#312E81">Streak</tspan><tspan fill="#FBBF24">Prize</tspan>
+  <text x="280" y="450" text-anchor="middle" font-family="Nunito, 'Baloo 2', Fredoka, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="800" font-size="64" letter-spacing="-1">
+    <tspan fill="#7F1D1D">Poppy</tspan><tspan fill="#F59E0B"> Streaks</tspan>
   </text>
 </svg>

@@ -178,7 +178,7 @@ export function ParentPanel({ data, now, onCommit, onClose }: Props) {
               checked={data.meta.settings.flushFx}
               onChange={(e) => handleToggleFlush(e.target.checked)}
             />
-            💩 flush animation when the timer ends (Sawyer&apos;s pick)
+            💩 flush animation when the timer ends
           </label>
         </Section>
 
@@ -243,7 +243,7 @@ export function ParentPanel({ data, now, onCommit, onClose }: Props) {
           <div className="flex gap-2">
             <button
               onClick={() =>
-                downloadFile(`sit-streak-${stamp}.json`, exportJSON(data), "application/json")
+                downloadFile(`poppy-streaks-${stamp}.json`, exportJSON(data), "application/json")
               }
               className="btn-primary"
             >
@@ -251,7 +251,7 @@ export function ParentPanel({ data, now, onCommit, onClose }: Props) {
             </button>
             <button
               onClick={() =>
-                downloadFile(`sit-streak-${stamp}.csv`, exportCSV(data), "text/csv")
+                downloadFile(`poppy-streaks-${stamp}.csv`, exportCSV(data), "text/csv")
               }
               className="btn-primary"
             >

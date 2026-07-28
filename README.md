@@ -1,7 +1,9 @@
-# StreakPrize (named by Sawyer)
+# Poppy Streaks (Ashton's app)
 
-A single-purpose PWA: two 5-minute sits per day, one screen, a streak, and a
-disproportionately good celebration. Built to spec v1.
+Ashton's own version of the family sit-streak PWA (Sawyer's lives at
+streak-prize.vercel.app — this is a separate app on a separate deploy, with
+its own streak and its own look). Two 5-minute sits per day, one screen, a
+streak, and a disproportionately good celebration.
 
 ## What's here
 
@@ -13,11 +15,10 @@ disproportionately good celebration. Built to spec v1.
 - **Windows**: morning sit before 9:00 AM, afternoon after 3:00 PM
   (parent-adjustable). Timezone `America/New_York`, day rolls over at 4:00 AM.
 - **Streak**: both sits = day complete = +1, at the moment the second sit ends.
-  Milestone badges every 10 days (Sawyer's rule) with a longer gold fireworks
-  celebration. Broken streak shows a neutral "Start a new streak" — no shame
-  copy anywhere.
+  Milestone badges every 10 days with a longer gold fireworks celebration.
+  Broken streak shows a neutral "Start a new streak" — no shame copy anywhere.
 - **Timer finish**: dancing 💩 that flushes away with a synthesized flush sound
-  and swirl-out (Sawyer's pick; parent-panel toggle to disable).
+  and swirl-out (parent-panel toggle to disable).
 - **Celebrations**: confetti on every completed day, gold fireworks on 10-day
   milestones, synthesized fanfares (WebAudio, no assets), count-up streak
   number, tap to dismiss.
@@ -40,15 +41,15 @@ npm run icons    # regenerate PWA icons (scripts/gen-icons.mjs)
 
 ## Branding
 
-Logo and lockups are Sawyer's StreakPrize kit — SVG sources in `assets/`,
-rendered PNGs in `public/` (home-screen icons) and `app/icon.png` (favicon).
-The maskable icon (`public/icon-512-maskable.png`) is the full-bleed variant
-of `assets/icon.svg` (rx=0).
+Ashton's Poppy Streaks logo: a poop emoji with star eyes and a diamond mouth,
+on a poppy-red gradient. SVG sources in `assets/`, rendered PNGs in `public/`
+(home-screen icons) and `app/icon.png` (favicon). The maskable icon
+(`public/icon-512-maskable.png`) is the full-bleed variant of
+`assets/icon.svg` (rx=0). Regenerate with `npm run icons`.
 
-## Before shipping to Sawyer
+## Before shipping to Ashton
 
-1. Live at https://streak-prize.vercel.app — open on his phone,
-   **Add to Home Screen**.
+1. Open the live URL on his phone, **Add to Home Screen**.
 2. Decide milestone rewards with him so the first 10-day badge already means
    something.
 

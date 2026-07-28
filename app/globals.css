@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
-/* Placeholder theme. Sawyer picks the real name + theme; swap these tokens. */
+/* Poppy Streaks theme: red, Ashton's pick. */
 :root {
-  --bg-from: #4338ca;
-  --bg-via: #7c3aed;
-  --bg-to: #db2777;
+  --bg-from: #ef4444;
+  --bg-via: #dc2626;
+  --bg-to: #7f1d1d;
 }
 
 html,
@@ -24,7 +24,7 @@ body {
 }
 
 .celebration-bg {
-  background: linear-gradient(160deg, #4338ca, #7c3aed 55%, #db2777);
+  background: linear-gradient(160deg, #ef4444, #dc2626 55%, #7f1d1d);
 }
 
 .celebration-bg-gold {

@@ -8,14 +8,14 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-// Sawyer named it.
+// Ashton's app: Poppy Streaks.
 export const metadata: Metadata = {
-  title: "StreakPrize",
+  title: "Poppy Streaks",
   description: "5 minutes, twice a day.",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "StreakPrize",
+    title: "Poppy Streaks",
   },
   icons: {
     apple: "/icon-180.png",
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#4338ca",
+  themeColor: "#dc2626",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
