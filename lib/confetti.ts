@@ -25,8 +25,7 @@ const PALETTES: string[][] = [
 ];
 
 const GOLD = ["#ffd700", "#ffec8b", "#ffb300", "#fff59d", "#ffca28", "#ffffff"];
-const EMOJIS = ["⭐", "🎉", "🌟", "🚀", "🎈"];
-
+const BLAST = ["#ff3d00", "#ff6d00", "#ffab00", "#ffd700", "#fff59d", "#ffffff"];
 function rand(min: number, max: number): number {
   return min + Math.random() * (max - min);
 }
@@ -43,12 +42,9 @@ function drawStar(ctx: CanvasRenderingContext2D, size: number): void {
 }
 
 /**
- * Run a confetti show on the given canvas. Returns a stop function.
- * variant 0: falling confetti rain
- * variant 1: center starburst
- * variant 2: emoji rain
- * variant 3: fireworks
- * milestone: long gold star fireworks (Sawyer's 10-day rule)
+ * Run a celebration show on the given canvas. Returns a stop function.
+ * Every completed day: fireworks (variant only rotates the color palette).
+ * milestone: a huge explosion — mega-burst, shockwave rings, echo blasts.
  */
 export function runConfetti(
   canvas: HTMLCanvasElement,
@@ -66,29 +62,12 @@ export function runConfetti(
   canvas.height = h * dpr;
   ctx.scale(dpr, dpr);
 
-  const palette = milestone ? GOLD : PALETTES[variant % PALETTES.length];
-  const mode = milestone ? 3 : variant % 4;
+  const palette = milestone ? BLAST : PALETTES[variant % PALETTES.length];
+  // fireworks every day; the milestone gets the explosion
+  const mode: 3 | 4 = milestone ? 4 : 3;
   const particles: Particle[] = [];
-
-  function spawnRain(count: number, emoji: boolean): void {
-    for (let i = 0; i < count; i++) {
-      particles.push({
-        x: rand(0, w),
-        y: rand(-h * 0.5, 0),
-        vx: rand(-30, 30),
-        vy: rand(60, 200),
-        rot: rand(0, Math.PI * 2),
-        vrot: rand(-6, 6),
-        size: emoji ? rand(14, 30) : rand(5, 11),
-        color: palette[Math.floor(rand(0, palette.length))],
-        shape: emoji ? "emoji" : Math.random() < 0.5 ? "rect" : "circle",
-        emoji: EMOJIS[Math.floor(rand(0, EMOJIS.length))],
-        gravity: 350,
-        drag: 0.35,
-        life: rand(2.5, 4.5),
-      });
-    }
-  }
+  // expanding shockwave rings for the explosion
+  const rings: { x: number; y: number; r: number; v: number; life: number }[] = [];
 
   function spawnBurst(cx: number, cy: number, count: number, star: boolean): void {
     for (let i = 0; i < count; i++) {
@@ -111,10 +90,31 @@ export function runConfetti(
     }
   }
 
-  if (mode === 0) spawnRain(160, false);
-  if (mode === 1) spawnBurst(w / 2, h * 0.4, 180, true);
-  if (mode === 2) spawnRain(70, true);
-  if (mode === 3) spawnBurst(w / 2, h * 0.35, milestone ? 120 : 80, milestone);
+  /** The milestone explosion: a mega-blast of star shrapnel + a shockwave. */
+  function explode(cx: number, cy: number, scale: number): void {
+    for (let i = 0; i < 260 * scale; i++) {
+      const a = rand(0, Math.PI * 2);
+      const speed = rand(200, 950) * scale;
+      particles.push({
+        x: cx,
+        y: cy,
+        vx: Math.cos(a) * speed,
+        vy: Math.sin(a) * speed - 80,
+        rot: rand(0, Math.PI * 2),
+        vrot: rand(-10, 10),
+        size: rand(5, 15) * scale,
+        color: palette[Math.floor(rand(0, palette.length))],
+        shape: Math.random() < 0.6 ? "star" : "circle",
+        gravity: 430,
+        drag: 1.4,
+        life: rand(1.6, 3.2),
+      });
+    }
+    rings.push({ x: cx, y: cy, r: 12, v: 1400 * scale, life: 1 });
+  }
+
+  if (mode === 3) spawnBurst(w / 2, h * 0.35, 80, false);
+  if (mode === 4) explode(w / 2, h * 0.42, 1);
 
   let last = performance.now();
   const start = last;
@@ -130,15 +130,43 @@ export function runConfetti(
 
     // fireworks keep launching through the show
     if (mode === 3 && elapsed < durationMs - 900 && now >= nextFirework) {
-      spawnBurst(rand(w * 0.2, w * 0.8), rand(h * 0.15, h * 0.5), 70, milestone);
+      spawnBurst(rand(w * 0.2, w * 0.8), rand(h * 0.15, h * 0.5), 70, false);
       nextFirework = now + rand(280, 600);
     }
-    // rain variants keep topping up early in the show
-    if ((mode === 0 || mode === 2) && elapsed < durationMs * 0.5 && particles.length < 260) {
-      spawnRain(8, mode === 2);
+    // the explosion echoes with smaller secondary blasts
+    if (mode === 4 && elapsed > 600 && elapsed < durationMs - 1600 && now >= nextFirework) {
+      explode(rand(w * 0.25, w * 0.75), rand(h * 0.2, h * 0.55), rand(0.3, 0.55));
+      nextFirework = now + rand(650, 1100);
     }
 
     ctx!.clearRect(0, 0, w, h);
+
+    // shockwave rings + initial white flash
+    for (let i = rings.length - 1; i >= 0; i--) {
+      const ring = rings[i];
+      ring.r += ring.v * dt;
+      ring.v *= Math.max(0, 1 - 2.2 * dt);
+      ring.life -= dt * 1.3;
+      if (ring.life <= 0) {
+        rings.splice(i, 1);
+        continue;
+      }
+      ctx!.save();
+      ctx!.globalAlpha = Math.max(0, ring.life) * 0.8;
+      ctx!.strokeStyle = "#ffffff";
+      ctx!.lineWidth = 12 * ring.life;
+      ctx!.beginPath();
+      ctx!.arc(ring.x, ring.y, ring.r, 0, Math.PI * 2);
+      ctx!.stroke();
+      ctx!.restore();
+    }
+    if (mode === 4 && elapsed < 250) {
+      ctx!.save();
+      ctx!.globalAlpha = 0.75 * (1 - elapsed / 250);
+      ctx!.fillStyle = "#ffffff";
+      ctx!.fillRect(0, 0, w, h);
+      ctx!.restore();
+    }
     for (let i = particles.length - 1; i >= 0; i--) {
       const p = particles[i];
       p.life -= dt;
@@ -177,7 +205,7 @@ export function runConfetti(
       ctx!.restore();
     }
 
-    if (elapsed < durationMs || particles.length > 0) {
+    if (elapsed < durationMs || particles.length > 0 || rings.length > 0) {
       raf = requestAnimationFrame(frame);
     } else {
       ctx!.clearRect(0, 0, w, h);

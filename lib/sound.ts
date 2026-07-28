@@ -111,14 +111,37 @@ export function playCelebration(variant: number): void {
   vibrate([100, 50, 100, 50, 300]);
 }
 
-/** Milestone — longer, bigger fanfare. */
+/** Milestone — a deep explosion boom, then the big fanfare. */
 export function playMilestone(): void {
   ensureAudio();
+  if (ctx) {
+    // the boom: a burst of lowpassed noise sweeping down, like a blast
+    const t0 = ctx.currentTime;
+    const dur = 0.9;
+    const len = Math.floor(ctx.sampleRate * dur);
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const ch = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) ch[i] = Math.random() * 2 - 1;
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const filter = ctx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(700, t0);
+    filter.frequency.exponentialRampToValueAtTime(60, t0 + dur);
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.exponentialRampToValueAtTime(0.6, t0 + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    src.connect(filter).connect(gain).connect(ctx.destination);
+    src.start(t0);
+    src.stop(t0 + dur);
+  }
+  const off = 0.6; // fanfare rides in after the blast
   const seq: [number, number, number][] = [
     [523, 0, 0.16], [659, 0.14, 0.16], [784, 0.28, 0.16], [1047, 0.42, 0.3],
     [784, 0.7, 0.14], [1047, 0.84, 0.14], [1319, 0.98, 0.3],
     [1047, 1.3, 0.15], [1319, 1.45, 0.15], [1568, 1.6, 0.8],
   ];
-  for (const [f, s, d] of seq) note(f, s, d, "triangle", 0.3);
-  vibrate([150, 75, 150, 75, 150, 75, 500]);
+  for (const [f, s, d] of seq) note(f, s + off, d, "triangle", 0.3);
+  vibrate([400, 80, 150, 75, 150, 75, 500]);
 }

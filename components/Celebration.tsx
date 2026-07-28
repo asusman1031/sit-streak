@@ -10,8 +10,8 @@ interface Props {
   onDismiss: () => void;
 }
 
-/** Day complete: the payoff. Confetti every day; gold fireworks on 10-day
- *  milestones. Streak number animates up, dismissible by tap. */
+/** Day complete: the payoff. Fireworks every day; a huge explosion on
+ *  10-day milestones. Streak number animates up, dismissible by tap. */
 export function Celebration({ streak, milestone, onDismiss }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [shown, setShown] = useState(Math.max(0, streak - 1));
@@ -20,10 +20,10 @@ export function Celebration({ streak, milestone, onDismiss }: Props) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    // variant 0 = confetti rain; milestones switch to gold star fireworks
-    const stop = runConfetti(canvas, milestone ? 3 : 0, milestone != null, duration);
+    // fireworks every day (streak rotates the colors); milestones explode
+    const stop = runConfetti(canvas, streak, milestone != null, duration);
     return stop;
-  }, [milestone, duration]);
+  }, [streak, milestone, duration]);
 
   // Count the streak number up after a beat.
   useEffect(() => {
