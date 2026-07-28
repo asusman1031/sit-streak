@@ -163,6 +163,44 @@ const at = (h: number, m = 0) => Date.UTC(2026, 6, 28, h + 4, m); // EDT: UTC-4
   check("gap after anchor -> derived only", computeStreak(d, "2026-07-30"), 0);
 }
 
+// --- sync merge ---
+import { mergeData } from "../lib/sync";
+{
+  const mk = (days: Record<string, [boolean, boolean]>, updatedAt: number): AppData => {
+    const d = emptyData();
+    d.updatedAt = updatedAt;
+    for (const [k, [m, a]] of Object.entries(days)) {
+      d.days[k] = {
+        date: k, morning_complete: m, afternoon_complete: a,
+        day_complete: m && a, manually_credited: false,
+      };
+    }
+    return d;
+  };
+  // Chrome did the morning, the installed app did the afternoon
+  const chrome = mk({ "2026-07-28": [true, false] }, 1000);
+  const pwa = mk({ "2026-07-28": [false, true] }, 2000);
+  const merged = mergeData(pwa, chrome);
+  check("merge unions windows", merged.days["2026-07-28"].day_complete, true);
+  check("merge keeps max updatedAt", merged.updatedAt, 2000);
+
+  // a credited day never un-credits, even against a newer empty copy
+  const done = mk({ "2026-07-27": [true, true] }, 1000);
+  const fresh = mk({}, 5000);
+  check("merge never loses a day", mergeData(fresh, done).days["2026-07-27"].day_complete, true);
+
+  // newer copy wins scalar settings
+  const a = mk({}, 1000);
+  a.meta.settings.afternoonStart = "14:00";
+  const b = mk({}, 2000);
+  b.meta.settings.afternoonStart = "16:00";
+  check("newer settings win", mergeData(a, b).meta.settings.afternoonStart, "16:00");
+  check("milestones union", mergeData(
+    { ...a, meta: { ...a.meta, milestones_earned: [10] } },
+    { ...b, meta: { ...b.meta, milestones_earned: [10, 20] } }
+  ).meta.milestones_earned, [10, 20]);
+}
+
 if (failures > 0) {
   console.error(`\n${failures} failure(s)`);
   process.exit(1);

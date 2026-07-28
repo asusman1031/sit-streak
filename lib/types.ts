@@ -59,6 +59,7 @@ export interface AppData {
   outputLog: OutputEntry[];
   meta: Meta;
   activeTimer: ActiveTimer | null;
+  updatedAt: number; // last local mutation; drives newest-wins in sync merges
 }
 
 export const SIT_DURATION_MS = 10 * 60 * 1000;
@@ -99,5 +100,6 @@ export function emptyData(): AppData {
       celebration_index: 0,
     },
     activeTimer: null,
+    updatedAt: 0,
   };
 }

@@ -21,7 +21,13 @@ function normalize(raw: unknown): AppData {
       milestones_earned: d.meta?.milestones_earned ?? [],
     },
     activeTimer: d.activeTimer ?? null,
+    updatedAt: typeof d.updatedAt === "number" ? d.updatedAt : 0,
   };
+}
+
+/** Normalize an untrusted blob (e.g. from the sync backend). */
+export function normalizeData(raw: unknown): AppData {
+  return normalize(raw);
 }
 
 export function loadData(): AppData {
@@ -47,6 +53,7 @@ export function loadData(): AppData {
 /** Every save also writes a timestamped backup key; a cleared primary key
  *  (or a bad write) can be recovered from the most recent backup. */
 export function saveData(data: AppData): void {
+  data.updatedAt = Date.now();
   const json = JSON.stringify(data);
   try {
     localStorage.setItem(KEY, json);
