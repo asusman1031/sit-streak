@@ -3,7 +3,14 @@
 import { useState } from "react";
 import { AppData, OutputEntry } from "@/lib/types";
 import { creditDayManually, newId, setStreakManually } from "@/lib/logic";
-import { downloadFile, exportCSV, exportJSON, restoreLatestBackup } from "@/lib/storage";
+import {
+  downloadFile,
+  exportCSV,
+  exportJSON,
+  normalizeData,
+  restoreLatestBackup,
+} from "@/lib/storage";
+import { getSyncId, mergeData, pullRemote, pushRemote, setSyncId } from "@/lib/sync";
 import { addDays, dayKey } from "@/lib/time";
 
 interface Props {
@@ -22,6 +29,8 @@ export function ParentPanel({ data, now, onCommit, onClose }: Props) {
   const [logOccurred, setLogOccurred] = useState(true);
   const [logNote, setLogNote] = useState("");
   const [message, setMessage] = useState<string | null>(null);
+  const [syncCode] = useState(() => getSyncId());
+  const [joinCode, setJoinCode] = useState("");
 
   const flash = (msg: string) => {
     setMessage(msg);
@@ -87,6 +96,35 @@ export function ParentPanel({ data, now, onCommit, onClose }: Props) {
     } else {
       flash("No backup found");
     }
+  };
+
+  const handleCopyCode = async () => {
+    try {
+      await navigator.clipboard.writeText(syncCode);
+      flash("Sync code copied");
+    } catch {
+      flash("Copy failed — long-press to select it");
+    }
+  };
+
+  const handleJoin = async () => {
+    const code = joinCode.trim();
+    if (code.length < 16) {
+      flash("That code looks too short");
+      return;
+    }
+    setSyncId(code);
+    const remote = await pullRemote();
+    if (remote) {
+      const merged = mergeData(data, normalizeData(remote));
+      onCommit(merged);
+      void pushRemote(merged);
+      flash("Joined — devices are now in sync");
+    } else {
+      void pushRemote(data);
+      flash("Code saved — will sync when online");
+    }
+    setJoinCode("");
   };
 
   return (
@@ -256,6 +294,33 @@ export function ParentPanel({ data, now, onCommit, onClose }: Props) {
               className="btn-primary"
             >
               Export CSV
+            </button>
+          </div>
+        </Section>
+
+        <Section title="Sync across devices">
+          <p className="text-xs text-slate-400">
+            Progress saves to the cloud under this family code. To use another
+            phone or browser, open the parent panel there and paste this code.
+          </p>
+          <div className="flex items-center gap-2">
+            <code className="flex-1 select-text break-all rounded-lg bg-slate-800 px-3 py-2 text-xs">
+              {syncCode || "unavailable"}
+            </code>
+            <button onClick={handleCopyCode} className="btn-primary">
+              Copy
+            </button>
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="paste code from another device"
+              value={joinCode}
+              onChange={(e) => setJoinCode(e.target.value)}
+              className="flex-1 rounded-lg bg-slate-800 px-3 py-2 text-sm"
+            />
+            <button onClick={handleJoin} className="btn-primary">
+              Join
             </button>
           </div>
         </Section>

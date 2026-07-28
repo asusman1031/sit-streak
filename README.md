@@ -1,6 +1,6 @@
 # StreakPrize (named by Sawyer)
 
-A single-purpose PWA: two 5-minute sits per day, one screen, a streak, and a
+A single-purpose PWA: two 10-minute sits per day, one screen, a streak, and a
 disproportionately good celebration. Built to spec v1.
 
 ## What's here
@@ -9,7 +9,7 @@ disproportionately good celebration. Built to spec v1.
   locked / done-for-today. No navigation.
 - **Timestamp-based timer**: remaining time always derives from the stored start
   timestamp and `Date.now()`. Close the app, lock the screen, come back — it's
-  right. Reopening past 5:00 completes the sit. Screen wake lock while running.
+  right. Reopening past 10:00 completes the sit. Screen wake lock while running.
 - **Windows**: morning sit before 9:00 AM, afternoon after 3:00 PM
   (parent-adjustable). Timezone `America/New_York`, day rolls over at 4:00 AM.
 - **Streak**: both sits = day complete = +1, at the moment the second sit ends.
@@ -26,6 +26,13 @@ disproportionately good celebration. Built to spec v1.
   parent-only output log, JSON/CSV export, restore-from-backup.
 - **Persistence**: `localStorage`, plus a timestamped backup key written on
   every save (last 12 kept). Corrupt/missing primary auto-recovers from backup.
+- **Cross-device sync** (`lib/sync.ts`): local-first with background cloud
+  catch-up to Supabase (one RLS-locked jsonb row per family sync code, reached
+  only via `streakprize_get`/`streakprize_put` RPCs — the code is the secret;
+  the table lives in the kidsync Supabase project). Merges union completions
+  (a credited day can never be lost) and let the newer copy win settings.
+  Pulls on open / foreground / every 60s; pushes debounced after each change.
+  Parent panel shows the sync code; paste it on another device to join.
 - **Offline**: service worker (network-first shell, cache-first assets); zero
   runtime dependencies beyond Next/React.
 

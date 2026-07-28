@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AppData, SIT_DURATION_MS, SitWindow } from "@/lib/types";
 import { creditSit, recordCancelledSit, windowState } from "@/lib/logic";
-import { loadData, saveData } from "@/lib/storage";
+import { loadData, normalizeData, saveData } from "@/lib/storage";
+import { mergeData, pullRemote, pushRemote, sameData } from "@/lib/sync";
 import { ensureAudio, playCelebration, playMilestone, playSitDone, playTimerDone } from "@/lib/sound";
 import { MainScreen } from "./MainScreen";
 import { TimerScreen } from "./TimerScreen";
@@ -24,10 +25,40 @@ export default function App() {
   const [overlay, setOverlay] = useState<Overlay>(null);
   const [parentOpen, setParentOpen] = useState(false);
   const completing = useRef(false);
+  const dataRef = useRef<AppData | null>(null);
+  dataRef.current = data;
+  const pushTimer = useRef<number | null>(null);
 
-  const commit = useCallback((next: AppData) => {
-    setData(next);
-    saveData(next);
+  // Debounced cloud push: local save is instant, sync trails by a beat.
+  const schedulePush = useCallback(() => {
+    if (pushTimer.current != null) clearTimeout(pushTimer.current);
+    pushTimer.current = window.setTimeout(() => {
+      if (dataRef.current) void pushRemote(dataRef.current);
+    }, 1500);
+  }, []);
+
+  const commit = useCallback(
+    (next: AppData) => {
+      setData(next);
+      saveData(next);
+      schedulePush();
+    },
+    [schedulePush]
+  );
+
+  // Pull the cloud copy and fold it in. Offline quietly does nothing.
+  const syncPull = useCallback(async () => {
+    const remoteRaw = await pullRemote();
+    if (!remoteRaw) return;
+    const local = dataRef.current;
+    if (!local) return;
+    const remote = normalizeData(remoteRaw);
+    const merged = mergeData(local, remote);
+    if (!sameData(merged, local)) {
+      setData(merged);
+      saveData(merged);
+    }
+    if (!sameData(merged, remote)) void pushRemote(merged);
   }, []);
 
   // Stable dismiss: the overlays arm auto-dismiss timers keyed on this
@@ -54,8 +85,27 @@ export default function App() {
   );
 
   useEffect(() => {
-    setData(loadData());
-  }, []);
+    const d = loadData();
+    dataRef.current = d;
+    setData(d);
+    void syncPull();
+  }, [syncPull]);
+
+  // Keep devices converging: re-pull when the app comes forward and each
+  // minute while visible.
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void syncPull();
+    };
+    const id = setInterval(() => {
+      if (document.visibilityState === "visible") void syncPull();
+    }, 60_000);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [syncPull]);
 
   // Clock tick: everything derives from Date.now(), never a ticking counter.
   useEffect(() => {
@@ -74,7 +124,7 @@ export default function App() {
   }, []);
 
   // Timer completion: fires whether the app stayed open or was just reopened
-  // past the 5:00 mark (remaining time is recomputed from the start timestamp).
+  // past the 10:00 mark (remaining time is recomputed from the start timestamp).
   useEffect(() => {
     if (!data?.activeTimer || completing.current) return;
     const t = data.activeTimer;

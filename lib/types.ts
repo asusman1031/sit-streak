@@ -59,9 +59,10 @@ export interface AppData {
   outputLog: OutputEntry[];
   meta: Meta;
   activeTimer: ActiveTimer | null;
+  updatedAt: number; // last local mutation; drives newest-wins in sync merges
 }
 
-export const SIT_DURATION_MS = 5 * 60 * 1000;
+export const SIT_DURATION_MS = 10 * 60 * 1000;
 // Sawyer's rule: every 10 days is a fireworks milestone.
 export const MILESTONES = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
@@ -99,5 +100,6 @@ export function emptyData(): AppData {
       celebration_index: 0,
     },
     activeTimer: null,
+    updatedAt: 0,
   };
 }
