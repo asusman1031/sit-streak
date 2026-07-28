@@ -34,28 +34,27 @@ export function FlushOverlay({ onDone }: Props) {
     };
   }, []);
 
-  // The outro spiral: an elliptical orbit that sweeps out from the center,
-  // loops the screen with accelerating speed and spin, and collapses back
-  // into the middle while shrinking away. Driven by rAF because CSS keyframes
-  // can't do a real spiral path.
+  // Sawyer's pick (the /lab "Drain" variant): spinning, fast tightening
+  // circles that wind down into the center like a real flush, shrinking
+  // away to nothing. Driven by rAF because CSS keyframes can't do a real
+  // spiral path.
   useEffect(() => {
     if (phase !== "swirl") return;
     const el = poopRef.current;
     if (!el) return;
-    const rx = Math.min(window.innerWidth * 0.42, 340);
-    const ry = Math.min(window.innerHeight * 0.3, 300);
+    const R = Math.min(window.innerWidth * 0.3, 150);
     const start = performance.now();
     let raf = 0;
     const frame = (now: number) => {
       const t = Math.min(1, (now - start) / SWIRL_MS);
-      const angle = -Math.PI / 2 + Math.PI * 2 * 2.75 * t * t; // accelerating orbit
-      const reach = Math.sin(Math.PI * t); // out, around, back to center
-      const x = Math.cos(angle) * rx * reach;
-      const y = Math.sin(angle) * ry * reach;
-      const shrink = Math.max(0, (t - 0.45) / 0.55);
-      const scale = Math.max(0.02, 1 - shrink * shrink);
-      const spin = 1080 * t * t; // the emoji itself spins faster and faster
+      const angle = -Math.PI / 2 + Math.PI * 2 * 4 * Math.pow(t, 1.4); // 4 accelerating turns
+      const r = R * Math.min(1, t / 0.12) * Math.pow(1 - t, 1.1); // quick out, wind down to center
+      const x = Math.cos(angle) * r;
+      const y = Math.sin(angle) * r;
+      const scale = Math.max(0.02, 1 - t * 0.95);
+      const spin = 720 * t; // the emoji spins as it goes down the drain
       el.style.transform = `translate(${x}px, ${y}px) rotate(${spin}deg) scale(${scale})`;
+      el.style.opacity = t > 0.9 ? String((1 - t) / 0.1) : "1";
       if (t < 1) {
         raf = requestAnimationFrame(frame);
       } else {
