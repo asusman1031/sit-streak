@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+/* Placeholder theme. Sawyer picks the real name + theme; swap these tokens. */
+:root {
+  --bg-from: #4338ca;
+  --bg-via: #7c3aed;
+  --bg-to: #db2777;
+}
+
+html,
+body {
+  height: 100%;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  background: var(--bg-from);
+}
+
+.app-bg {
+  background: linear-gradient(160deg, var(--bg-from), var(--bg-via) 55%, var(--bg-to));
+}
+
+.celebration-bg {
+  background: linear-gradient(160deg, #4338ca, #7c3aed 55%, #db2777);
+}
+
+.celebration-bg-gold {
+  background: linear-gradient(160deg, #92400e, #b45309 40%, #7c2d12);
+}
+
+.streak-glow {
+  text-shadow:
+    0 0 24px rgba(251, 191, 36, 0.55),
+    0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.big-button {
+  box-shadow:
+    0 10px 30px rgba(245, 158, 11, 0.45),
+    inset 0 -6px 0 rgba(0, 0, 0, 0.15);
+}
+
+@keyframes pop-in {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.pop-in {
+  animation: pop-in 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+@keyframes count-pop {
+  0% {
+    transform: scale(0.5);
+  }
+  60% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.count-pop {
+  animation: count-pop 0.6s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+@keyframes bounce-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+.bounce-slow {
+  animation: bounce-slow 1.2s ease-in-out infinite;
+}
+
+.btn-primary {
+  border-radius: 0.5rem;
+  background: #4f46e5;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+}
+.btn-primary:active {
+  background: #4338ca;
+}
+
+.btn-secondary {
+  border-radius: 0.5rem;
+  background: #334155;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+}
+
+/* Allow text selection inside the parent panel inputs */
+input,
+textarea {
+  user-select: text;
+  -webkit-user-select: text;
+}
