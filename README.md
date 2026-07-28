@@ -1,6 +1,6 @@
 # StreakPrize (named by Sawyer)
 
-A single-purpose PWA: two 5-minute sits per day, one screen, a streak, and a
+A single-purpose PWA: two 10-minute sits per day, one screen, a streak, and a
 disproportionately good celebration. Built to spec v1.
 
 ## What's here
@@ -9,7 +9,7 @@ disproportionately good celebration. Built to spec v1.
   locked / done-for-today. No navigation.
 - **Timestamp-based timer**: remaining time always derives from the stored start
   timestamp and `Date.now()`. Close the app, lock the screen, come back — it's
-  right. Reopening past 5:00 completes the sit. Screen wake lock while running.
+  right. Reopening past 10:00 completes the sit. Screen wake lock while running.
 - **Windows**: morning sit before 9:00 AM, afternoon after 3:00 PM
   (parent-adjustable). Timezone `America/New_York`, day rolls over at 4:00 AM.
 - **Streak**: both sits = day complete = +1, at the moment the second sit ends.

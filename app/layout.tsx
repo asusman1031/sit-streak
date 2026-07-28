@@ -11,7 +11,7 @@ const geistSans = Geist({
 // Sawyer named it.
 export const metadata: Metadata = {
   title: "StreakPrize",
-  description: "5 minutes, twice a day.",
+  description: "10 minutes, twice a day.",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

@@ -34,7 +34,7 @@ export function FlushOverlay({ onDone }: Props) {
       className="app-bg fixed inset-0 z-40 flex flex-col items-center justify-center"
       onClick={() => onDoneRef.current()}
     >
-      <div className="pop-in text-3xl font-black text-white">5 minutes done!</div>
+      <div className="pop-in text-3xl font-black text-white">10 minutes done!</div>
       <div className={phase === "dance" ? "poop-dance mt-10 text-[7rem]" : "swirl-out mt-10 text-[7rem]"}>
         💩
       </div>

@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "StreakPrize",
     short_name: "StreakPrize",
-    description: "5 minutes, twice a day.",
+    description: "10 minutes, twice a day.",
     start_url: "/",
     display: "standalone",
     orientation: "portrait",

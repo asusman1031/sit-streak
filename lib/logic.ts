@@ -105,7 +105,7 @@ export interface CompletionResult {
   milestone: number | null;
 }
 
-/** Credit a finished 5:00 sit. Guards against double-crediting a window. */
+/** Credit a finished 10:00 sit. Guards against double-crediting a window. */
 export function creditSit(
   data: AppData,
   sitWindow: SitWindow,

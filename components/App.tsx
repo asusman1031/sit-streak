@@ -74,7 +74,7 @@ export default function App() {
   }, []);
 
   // Timer completion: fires whether the app stayed open or was just reopened
-  // past the 5:00 mark (remaining time is recomputed from the start timestamp).
+  // past the 10:00 mark (remaining time is recomputed from the start timestamp).
   useEffect(() => {
     if (!data?.activeTimer || completing.current) return;
     const t = data.activeTimer;

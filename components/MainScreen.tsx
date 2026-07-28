@@ -168,7 +168,7 @@ function ActionArea({
           onClick={onStart}
           className="big-button w-full rounded-3xl bg-amber-400 px-8 py-8 text-3xl font-black text-amber-950 shadow-xl shadow-amber-500/40 transition-transform active:scale-95"
         >
-          Start my 5 minutes
+          Start my 10 minutes
         </button>
         <div className="text-base font-semibold text-white/70">
           {ws.window === "morning" ? "Morning sit" : "Afternoon sit"}
@@ -195,7 +195,7 @@ function ActionArea({
           disabled
           className="w-full cursor-not-allowed rounded-3xl bg-white/15 px-8 py-8 text-3xl font-black text-white/40"
         >
-          Start my 5 minutes
+          Start my 10 minutes
         </button>
       </div>
     );
