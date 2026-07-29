@@ -107,6 +107,17 @@ export function ParentPanel({ data, now, onCommit, onClose }: Props) {
     }
   };
 
+  const handleCopyJoinLink = async () => {
+    try {
+      await navigator.clipboard.writeText(
+        `${window.location.origin}/?join=${syncCode}`
+      );
+      flash("Join link copied — text it to the other device");
+    } catch {
+      flash("Copy failed — long-press to select the code instead");
+    }
+  };
+
   const handleJoin = async () => {
     const code = joinCode.trim();
     if (code.length < 16) {
@@ -311,6 +322,9 @@ export function ParentPanel({ data, now, onCommit, onClose }: Props) {
               Copy
             </button>
           </div>
+          <button onClick={handleCopyJoinLink} className="btn-secondary self-start">
+            Copy join link (open it on the other device)
+          </button>
           <div className="flex gap-2">
             <input
               type="text"
