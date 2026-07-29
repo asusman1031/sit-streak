@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AppData, SIT_DURATION_MS, SitWindow } from "@/lib/types";
 import { creditSit, recordCancelledSit, windowState } from "@/lib/logic";
 import { loadData, normalizeData, saveData } from "@/lib/storage";
-import { mergeData, pullRemote, pushRemote, sameData } from "@/lib/sync";
+import { mergeData, pullRemote, pushRemote, sameData, setSyncId } from "@/lib/sync";
 import { ensureAudio, playCelebration, playMilestone, playSitDone, playTimerDone } from "@/lib/sound";
 import { MainScreen } from "./MainScreen";
 import { TimerScreen } from "./TimerScreen";
@@ -88,6 +88,17 @@ export default function App() {
     const d = loadData();
     dataRef.current = d;
     setData(d);
+    // Join link: opening /?join=<code> adopts that family sync code before
+    // the first pull, so a fresh device shows the shared streak immediately.
+    try {
+      const code = new URLSearchParams(window.location.search).get("join");
+      if (code && code.trim().length >= 16) {
+        setSyncId(code);
+        window.history.replaceState({}, "", "/");
+      }
+    } catch {
+      // ignore malformed URLs
+    }
     void syncPull();
   }, [syncPull]);
 
