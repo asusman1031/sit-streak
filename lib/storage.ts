@@ -124,11 +124,11 @@ export function exportCSV(data: AppData): string {
   const lines: string[] = [];
 
   lines.push("DAYS");
-  lines.push("date,morning_complete,afternoon_complete,day_complete,manually_credited");
+  lines.push("date,morning_complete,afternoon_complete,bonus_complete,day_complete,manually_credited");
   for (const key of Object.keys(data.days).sort()) {
     const d = data.days[key];
     lines.push(
-      [d.date, d.morning_complete, d.afternoon_complete, d.day_complete, d.manually_credited]
+      [d.date, d.morning_complete, d.afternoon_complete, Boolean(d.bonus_complete), d.day_complete, d.manually_credited]
         .map(csvEscape)
         .join(",")
     );

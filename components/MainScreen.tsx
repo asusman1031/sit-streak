@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { AppData, MILESTONE_EMOJI } from "@/lib/types";
+import { AppData, MILESTONE_EMOJI, formatStreak } from "@/lib/types";
 import { WindowState } from "@/lib/logic";
 import { formatWait, friendlyClock } from "@/lib/time";
 
@@ -10,10 +10,11 @@ interface Props {
   ws: WindowState;
   now: number;
   onStart: () => void;
+  onStartBonus: () => void;
   onOpenParent: () => void;
 }
 
-export function MainScreen({ data, ws, now, onStart, onOpenParent }: Props) {
+export function MainScreen({ data, ws, now, onStart, onStartBonus, onOpenParent }: Props) {
   const streak = data.meta.current_streak;
   const longest = data.meta.longest_streak;
   const newStreakState = streak === 0;
@@ -78,7 +79,7 @@ export function MainScreen({ data, ws, now, onStart, onOpenParent }: Props) {
         ) : (
           <>
             <div className="streak-glow text-8xl font-black leading-none">
-              {streak}
+              {formatStreak(streak)}
             </div>
             <div className="mt-2 text-xl font-bold text-white/90">
               day streak {streak >= 3 ? "🔥" : ""}
@@ -87,15 +88,16 @@ export function MainScreen({ data, ws, now, onStart, onOpenParent }: Props) {
         )}
         {longest > 0 && (
           <div className="mt-1 text-sm font-medium text-white/50">
-            best: {longest}
+            best: {formatStreak(longest)}
           </div>
         )}
       </div>
 
-      {/* Today's two slots */}
+      {/* Today's slots: two required + the optional bonus star */}
       <div className="mt-8 flex items-center gap-6">
         <Slot label="Morning" done={ws.morningDone} />
         <Slot label="Afternoon" done={ws.afternoonDone} />
+        <Slot label="Bonus" done={ws.bonusDone} bonus />
       </div>
 
       {/* Milestone badges */}
@@ -110,8 +112,16 @@ export function MainScreen({ data, ws, now, onStart, onOpenParent }: Props) {
       )}
 
       {/* Main action area */}
-      <div className="flex w-full max-w-sm flex-1 flex-col items-center justify-center">
+      <div className="flex w-full max-w-sm flex-1 flex-col items-center justify-center gap-5">
         <ActionArea data={data} ws={ws} now={now} onStart={onStart} />
+        {ws.bonusAvailable && (
+          <button
+            onClick={onStartBonus}
+            className="rounded-full bg-white/15 px-6 py-3 text-lg font-bold text-white/90 transition-transform active:scale-95"
+          >
+            ⭐ Bonus sit · 5 min · +½
+          </button>
+        )}
       </div>
 
       {/* First-run only: a quiet door to sync setup on a brand-new install.
@@ -130,17 +140,21 @@ export function MainScreen({ data, ws, now, onStart, onOpenParent }: Props) {
   );
 }
 
-function Slot({ label, done }: { label: string; done: boolean }) {
+function Slot({ label, done, bonus = false }: { label: string; done: boolean; bonus?: boolean }) {
   return (
     <div className="flex flex-col items-center gap-1.5">
       <div
-        className={`flex h-14 w-14 items-center justify-center rounded-full border-4 text-2xl transition-all ${
+        className={`flex items-center justify-center rounded-full border-4 transition-all ${
+          bonus ? "h-11 w-11 text-lg" : "h-14 w-14 text-2xl"
+        } ${
           done
-            ? "border-emerald-300 bg-emerald-400/90 shadow-lg shadow-emerald-500/40"
+            ? bonus
+              ? "border-amber-300 bg-amber-400/90 shadow-lg shadow-amber-500/40"
+              : "border-emerald-300 bg-emerald-400/90 shadow-lg shadow-emerald-500/40"
             : "border-white/40 bg-white/10"
         }`}
       >
-        {done ? "✓" : ""}
+        {done ? (bonus ? "⭐" : "✓") : ""}
       </div>
       <div className="text-xs font-semibold uppercase tracking-wide text-white/70">
         {label}

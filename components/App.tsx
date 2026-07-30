@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AppData, SIT_DURATION_MS, SitWindow } from "@/lib/types";
+import { AppData, SitWindow, durationFor } from "@/lib/types";
 import { creditSit, recordCancelledSit, windowState } from "@/lib/logic";
 import { loadData, normalizeData, saveData } from "@/lib/storage";
 import { mergeData, pullRemote, pushRemote, sameData, setSyncId } from "@/lib/sync";
@@ -15,7 +15,7 @@ import { ParentPanel } from "./ParentPanel";
 
 type Reward =
   | { type: "sitDone"; window: SitWindow }
-  | { type: "celebration"; streak: number; milestone: number | null; variant: number };
+  | { type: "celebration"; streak: number; prev: number; milestone: number | null; variant: number };
 
 type Overlay = Reward | { type: "flush"; after: Reward } | null;
 
@@ -135,22 +135,26 @@ export default function App() {
   }, []);
 
   // Timer completion: fires whether the app stayed open or was just reopened
-  // past the 10:00 mark (remaining time is recomputed from the start timestamp).
+  // past the end mark (remaining time is recomputed from the start timestamp).
   useEffect(() => {
     if (!data?.activeTimer || completing.current) return;
     const t = data.activeTimer;
-    if (now - t.startedAt < SIT_DURATION_MS) return;
+    if (now - t.startedAt < durationFor(t.window)) return;
     completing.current = true;
     const result = creditSit(data, t.window, t.dateKey, t.startedAt);
     commit(result.data);
-    const reward: Reward = result.dayCompleted
-      ? {
-          type: "celebration",
-          streak: result.newStreak,
-          milestone: result.milestone,
-          variant: result.data.meta.celebration_index,
-        }
-      : { type: "sitDone", window: t.window };
+    // Day complete or a milestone crossed (a bonus can do that) -> full
+    // celebration; otherwise the short confirmation.
+    const reward: Reward =
+      result.dayCompleted || result.milestone
+        ? {
+            type: "celebration",
+            streak: result.newStreak,
+            prev: data.meta.current_streak,
+            milestone: result.milestone,
+            variant: result.data.meta.celebration_index,
+          }
+        : { type: "sitDone", window: t.window };
     if (data.meta.settings.flushFx) {
       // Sawyer's finale: dancing poop, flush, swirl out — then the reward.
       setOverlay({ type: "flush", after: reward });
@@ -176,6 +180,15 @@ export default function App() {
     });
   };
 
+  const startBonus = () => {
+    if (!ws.bonusAvailable || data.activeTimer) return;
+    ensureAudio();
+    commit({
+      ...data,
+      activeTimer: { startedAt: Date.now(), window: "bonus", dateKey: ws.todayKey },
+    });
+  };
+
   const cancelSit = () => {
     if (!data.activeTimer) return;
     const t = data.activeTimer;
@@ -186,6 +199,8 @@ export default function App() {
     return (
       <TimerScreen
         startedAt={data.activeTimer.startedAt}
+        durationMs={durationFor(data.activeTimer.window)}
+        bonus={data.activeTimer.window === "bonus"}
         onCancel={cancelSit}
       />
     );
@@ -198,6 +213,7 @@ export default function App() {
         ws={ws}
         now={now}
         onStart={startSit}
+        onStartBonus={startBonus}
         onOpenParent={() => setParentOpen(true)}
       />
       {overlay?.type === "flush" && <FlushOverlay onDone={flushDone(overlay.after)} />}
@@ -211,6 +227,7 @@ export default function App() {
       {overlay?.type === "celebration" && (
         <Celebration
           streak={overlay.streak}
+          prev={overlay.prev}
           milestone={overlay.milestone}
           onDismiss={dismissOverlay}
         />
