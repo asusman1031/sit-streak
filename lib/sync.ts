@@ -11,6 +11,17 @@ const SUPABASE_URL = "https://zwiqmrlquldhjjwbeakj.supabase.co";
 const SUPABASE_KEY = "sb_publishable_7QMusP6TZR-eKN4qtgcx7g_KexkigQU";
 const SYNC_ID_KEY = "sitstreak:syncid";
 
+/** Codes are lowercase UUIDs. Normalizing + validating on every entry path
+ *  prevents the typo-fork: a hand-typed "Db3c2la-..." once silently created
+ *  a second family record. */
+export function normalizeSyncCode(raw: string): string {
+  return raw.trim().toLowerCase().replace(/\s+/g, "");
+}
+
+export function isValidSyncCode(code: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(code);
+}
+
 export function getSyncId(): string {
   let id = "";
   try {
@@ -53,18 +64,22 @@ async function rpc(fn: string, body: unknown): Promise<Response> {
   }
 }
 
-/** Fetch the cloud copy for this sync code. null = no row or offline. */
-export async function pullRemote(): Promise<AppData | null> {
-  const id = getSyncId();
-  if (!id) return null;
+/** Fetch the cloud copy for a specific code (used to verify a join target). */
+export async function pullRemoteBy(code: string): Promise<AppData | null> {
+  if (!code) return null;
   try {
-    const res = await rpc("streakprize_get", { p_sync_id: id });
+    const res = await rpc("streakprize_get", { p_sync_id: code });
     if (!res.ok) return null;
     const json = await res.json();
     return json && typeof json === "object" ? (json as AppData) : null;
   } catch {
     return null; // offline is a normal state, never an error
   }
+}
+
+/** Fetch the cloud copy for this device's sync code. null = no row or offline. */
+export async function pullRemote(): Promise<AppData | null> {
+  return pullRemoteBy(getSyncId());
 }
 
 /** Push the local copy to the cloud. Fire-and-forget; offline is fine. */

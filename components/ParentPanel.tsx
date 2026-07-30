@@ -10,7 +10,15 @@ import {
   normalizeData,
   restoreLatestBackup,
 } from "@/lib/storage";
-import { getSyncId, mergeData, pullRemote, pushRemote, setSyncId } from "@/lib/sync";
+import {
+  getSyncId,
+  isValidSyncCode,
+  mergeData,
+  normalizeSyncCode,
+  pullRemoteBy,
+  pushRemote,
+  setSyncId,
+} from "@/lib/sync";
 import { addDays, dayKey } from "@/lib/time";
 
 interface Props {
@@ -119,22 +127,23 @@ export function ParentPanel({ data, now, onCommit, onClose }: Props) {
   };
 
   const handleJoin = async () => {
-    const code = joinCode.trim();
-    if (code.length < 16) {
-      flash("That code looks too short");
+    // Normalize and verify before switching: a typo'd code once silently
+    // created a second family record. The code must exist in the cloud.
+    const code = normalizeSyncCode(joinCode);
+    if (!isValidSyncCode(code)) {
+      flash("That doesn't look like a code — use Copy on the other device");
+      return;
+    }
+    const remote = await pullRemoteBy(code);
+    if (!remote) {
+      flash("Couldn't find that code (typo? offline?) — nothing changed");
       return;
     }
     setSyncId(code);
-    const remote = await pullRemote();
-    if (remote) {
-      const merged = mergeData(data, normalizeData(remote));
-      onCommit(merged);
-      void pushRemote(merged);
-      flash("Joined — devices are now in sync");
-    } else {
-      void pushRemote(data);
-      flash("Code saved — will sync when online");
-    }
+    const merged = mergeData(data, normalizeData(remote));
+    onCommit(merged);
+    void pushRemote(merged);
+    flash("Joined — devices are now in sync");
     setJoinCode("");
   };
 

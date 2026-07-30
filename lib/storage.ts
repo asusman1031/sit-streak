@@ -87,6 +87,16 @@ function pruneBackups(keep: number = MAX_BACKUPS): void {
   }
 }
 
+/** Wipe this device's local state (used by fresh-join links). */
+export function wipeLocal(): void {
+  try {
+    localStorage.removeItem(KEY);
+    for (const b of listBackups()) localStorage.removeItem(b.key);
+  } catch {
+    // ignore
+  }
+}
+
 export function restoreLatestBackup(): AppData | null {
   const backups = listBackups();
   for (const b of backups) {
