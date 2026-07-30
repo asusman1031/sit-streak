@@ -10,6 +10,48 @@ import { dayKey } from "./time";
 const SUPABASE_URL = "https://zwiqmrlquldhjjwbeakj.supabase.co";
 const SUPABASE_KEY = "sb_publishable_7QMusP6TZR-eKN4qtgcx7g_KexkigQU";
 const SYNC_ID_KEY = "sitstreak:syncid";
+const LOGIN_KEY = "sitstreak:family";
+
+// ---------- Family login ----------
+// The family password IS the identity: the sync row id derives from it, so
+// the same password on any device lands on the same record. No emails, no
+// codes. A device is unusable until it logs in, which is the point: silent
+// per-device silos were forking the streak.
+
+export async function deriveFamilyId(passphrase: string): Promise<string> {
+  const norm = passphrase.trim().toLowerCase().replace(/\s+/g, " ");
+  const bytes = new TextEncoder().encode(`streakprize-family-v1:${norm}`);
+  const hash = await crypto.subtle.digest("SHA-256", bytes);
+  return (
+    "fam-" +
+    [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, "0")).join("")
+  );
+}
+
+export function isLoggedIn(): boolean {
+  try {
+    return localStorage.getItem(LOGIN_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function markLoggedIn(): void {
+  try {
+    localStorage.setItem(LOGIN_KEY, "1");
+  } catch {
+    // ignore
+  }
+}
+
+export function logout(): void {
+  try {
+    localStorage.removeItem(LOGIN_KEY);
+    localStorage.removeItem(SYNC_ID_KEY);
+  } catch {
+    // ignore
+  }
+}
 
 /** Codes are lowercase UUIDs. Normalizing + validating on every entry path
  *  prevents the typo-fork: a hand-typed "Db3c2la-..." once silently created
@@ -19,21 +61,21 @@ export function normalizeSyncCode(raw: string): string {
 }
 
 export function isValidSyncCode(code: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(code);
+  // legacy UUID codes or password-derived family ids
+  return (
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(code) ||
+    /^fam-[0-9a-f]{64}$/.test(code)
+  );
 }
 
 export function getSyncId(): string {
-  let id = "";
+  // No auto-generation: an un-identified device stays silo-less until it
+  // logs in (or follows a join link). Legacy devices keep their stored id.
   try {
-    id = localStorage.getItem(SYNC_ID_KEY) ?? "";
-    if (!id) {
-      id = crypto.randomUUID();
-      localStorage.setItem(SYNC_ID_KEY, id);
-    }
+    return localStorage.getItem(SYNC_ID_KEY) ?? "";
   } catch {
-    // storage unavailable; sync disabled this session
+    return "";
   }
-  return id;
 }
 
 /** Join another device's code. Caller should pull + merge afterwards. */
