@@ -3,8 +3,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AppData, SitWindow, durationFor } from "@/lib/types";
 import { creditSit, recordCancelledSit, windowState } from "@/lib/logic";
-import { loadData, normalizeData, saveData } from "@/lib/storage";
-import { mergeData, pullRemote, pushRemote, sameData, setSyncId } from "@/lib/sync";
+import { loadData, normalizeData, saveData, wipeLocal } from "@/lib/storage";
+import {
+  isValidSyncCode,
+  mergeData,
+  normalizeSyncCode,
+  pullRemote,
+  pushRemote,
+  sameData,
+  setSyncId,
+} from "@/lib/sync";
 import { ensureAudio, playCelebration, playMilestone, playSitDone, playTimerDone } from "@/lib/sound";
 import { MainScreen } from "./MainScreen";
 import { TimerScreen } from "./TimerScreen";
@@ -85,20 +93,24 @@ export default function App() {
   );
 
   useEffect(() => {
-    const d = loadData();
-    dataRef.current = d;
-    setData(d);
-    // Join link: opening /?join=<code> adopts that family sync code before
-    // the first pull, so a fresh device shows the shared streak immediately.
+    // Join link: /?join=<code> adopts that family sync code before the first
+    // pull; codes are normalized and validated so a mangled link can't fork
+    // the family record. /?join=<code>&fresh=1 also wipes this device's
+    // local state first — a clean adopt with no merge residue.
     try {
-      const code = new URLSearchParams(window.location.search).get("join");
-      if (code && code.trim().length >= 16) {
+      const params = new URLSearchParams(window.location.search);
+      const code = normalizeSyncCode(params.get("join") ?? "");
+      if (code && isValidSyncCode(code)) {
+        if (params.get("fresh") === "1") wipeLocal();
         setSyncId(code);
-        window.history.replaceState({}, "", "/");
       }
+      if (params.get("join")) window.history.replaceState({}, "", "/");
     } catch {
       // ignore malformed URLs
     }
+    const d = loadData();
+    dataRef.current = d;
+    setData(d);
     void syncPull();
   }, [syncPull]);
 
