@@ -80,6 +80,9 @@ export function MainScreen({ data, ws, now, onStart, onStartBonus, onOpenParent 
           <>
             <div className="streak-glow text-8xl font-black leading-none">
               {formatStreak(streak)}
+              {!Number.isInteger(streak) && (
+                <span className="align-top text-5xl">⭐</span>
+              )}
             </div>
             <div className="mt-2 text-xl font-bold text-white/90">
               day streak {streak >= 3 ? "🔥" : ""}
@@ -119,7 +122,7 @@ export function MainScreen({ data, ws, now, onStart, onStartBonus, onOpenParent 
             onClick={onStartBonus}
             className="rounded-full bg-white/15 px-6 py-3 text-lg font-bold text-white/90 transition-transform active:scale-95"
           >
-            ⭐ Bonus sit · 5 min · +½
+            ⭐ Bonus sit · 5 min · +0.5
           </button>
         )}
       </div>

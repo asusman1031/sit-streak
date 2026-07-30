@@ -63,6 +63,9 @@ export function Celebration({ streak, prev, milestone, onDismiss }: Props) {
           }`}
         >
           {formatStreak(shown)}
+          {!Number.isInteger(shown) && (
+            <span className="align-top text-7xl">⭐</span>
+          )}
         </div>
         <div className="text-2xl font-bold text-white/90">day streak</div>
       </div>

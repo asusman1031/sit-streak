@@ -32,7 +32,7 @@ export function SitDoneOverlay({ window: win, hasAfternoonLeft, onDismiss }: Pro
         </div>
         <div className="text-lg font-medium text-slate-500">
           {win === "bonus"
-            ? "+½ to your streak"
+            ? "+0.5 to your streak"
             : hasAfternoonLeft
               ? "One more later today."
               : "Nice work!"}
