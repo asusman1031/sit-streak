@@ -5,7 +5,9 @@ import { AppData, SitWindow, durationFor } from "@/lib/types";
 import { creditSit, recordCancelledSit, windowState } from "@/lib/logic";
 import { loadData, normalizeData, saveData, wipeLocal } from "@/lib/storage";
 import {
+  isLoggedIn,
   isValidSyncCode,
+  markLoggedIn,
   mergeData,
   normalizeSyncCode,
   pullRemote,
@@ -13,6 +15,7 @@ import {
   sameData,
   setSyncId,
 } from "@/lib/sync";
+import { LoginScreen } from "./LoginScreen";
 import { ensureAudio, playCelebration, playMilestone, playSitDone, playTimerDone } from "@/lib/sound";
 import { MainScreen } from "./MainScreen";
 import { TimerScreen } from "./TimerScreen";
@@ -32,6 +35,7 @@ export default function App() {
   const [now, setNow] = useState(() => Date.now());
   const [overlay, setOverlay] = useState<Overlay>(null);
   const [parentOpen, setParentOpen] = useState(false);
+  const [authed, setAuthed] = useState(false);
   const completing = useRef(false);
   const dataRef = useRef<AppData | null>(null);
   dataRef.current = data;
@@ -103,11 +107,13 @@ export default function App() {
       if (code && isValidSyncCode(code)) {
         if (params.get("fresh") === "1") wipeLocal();
         setSyncId(code);
+        markLoggedIn(); // a join link is an identity assertion
       }
       if (params.get("join")) window.history.replaceState({}, "", "/");
     } catch {
       // ignore malformed URLs
     }
+    setAuthed(isLoggedIn());
     const d = loadData();
     dataRef.current = d;
     setData(d);
@@ -179,6 +185,20 @@ export default function App() {
 
   if (!data) {
     return <main className="app-bg flex min-h-dvh items-center justify-center" />;
+  }
+
+  // Un-identified device: family login before anything else. Existing
+  // local data rides along and merges in.
+  if (!authed) {
+    return (
+      <LoginScreen
+        data={data}
+        onDone={(merged) => {
+          commit(merged);
+          setAuthed(true);
+        }}
+      />
+    );
   }
 
   const ws = windowState(data, now);

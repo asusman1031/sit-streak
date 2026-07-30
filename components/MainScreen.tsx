@@ -127,18 +127,6 @@ export function MainScreen({ data, ws, now, onStart, onStartBonus, onOpenParent 
         )}
       </div>
 
-      {/* First-run only: a quiet door to sync setup on a brand-new install.
-          Gone forever once any data exists. */}
-      {data.sits.length === 0 &&
-        Object.keys(data.days).length === 0 &&
-        data.meta.longest_streak === 0 && (
-          <button
-            onClick={onOpenParent}
-            className="pb-2 text-xs font-semibold text-white/40"
-          >
-            Grown-up? Set up sync
-          </button>
-        )}
     </main>
   );
 }
