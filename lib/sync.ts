@@ -83,12 +83,14 @@ function mergeDay(a: DayRec | undefined, b: DayRec | undefined, date: string): D
   const morning = Boolean(a?.morning_complete) || Boolean(b?.morning_complete);
   const afternoon = Boolean(a?.afternoon_complete) || Boolean(b?.afternoon_complete);
   const manual = Boolean(a?.manually_credited) || Boolean(b?.manually_credited);
+  const bonus = Boolean(a?.bonus_complete) || Boolean(b?.bonus_complete);
   return {
     date,
     morning_complete: morning,
     afternoon_complete: afternoon,
     day_complete: (morning && afternoon) || manual,
     manually_credited: manual,
+    bonus_complete: bonus,
   };
 }
 

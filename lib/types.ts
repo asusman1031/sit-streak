@@ -1,4 +1,4 @@
-export type SitWindow = "morning" | "afternoon";
+export type SitWindow = "morning" | "afternoon" | "bonus";
 
 export interface Sit {
   id: string;
@@ -15,6 +15,7 @@ export interface DayRec {
   afternoon_complete: boolean;
   day_complete: boolean;
   manually_credited: boolean;
+  bonus_complete?: boolean; // optional extra-credit sit: +0.5 day value
 }
 
 export interface OutputEntry {
@@ -63,6 +64,16 @@ export interface AppData {
 }
 
 export const SIT_DURATION_MS = 10 * 60 * 1000;
+export const BONUS_DURATION_MS = 5 * 60 * 1000;
+
+export function durationFor(window: SitWindow): number {
+  return window === "bonus" ? BONUS_DURATION_MS : SIT_DURATION_MS;
+}
+
+/** Streaks can be fractional now (bonus = half days): "2.5", never "2.0". */
+export function formatStreak(n: number): string {
+  return Number.isInteger(n) ? String(n) : n.toFixed(1);
+}
 // Sawyer's rule: every 10 days is a fireworks milestone.
 export const MILESTONES = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 

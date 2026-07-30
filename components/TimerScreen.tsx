@@ -1,18 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { SIT_DURATION_MS } from "@/lib/types";
 import { formatCountdown } from "@/lib/time";
 
 interface Props {
   startedAt: number;
+  durationMs: number;
+  bonus: boolean;
   onCancel: () => void;
 }
 
 const RING_R = 130;
 const RING_C = 2 * Math.PI * RING_R;
 
-export function TimerScreen({ startedAt, onCancel }: Props) {
+export function TimerScreen({ startedAt, durationMs, bonus, onCancel }: Props) {
   // Local fast tick for smooth display; remaining time always derives from
   // the start timestamp, never from a pausable counter.
   const [now, setNow] = useState(() => Date.now());
@@ -49,8 +50,8 @@ export function TimerScreen({ startedAt, onCancel }: Props) {
     };
   }, []);
 
-  const remaining = Math.max(0, SIT_DURATION_MS - (now - startedAt));
-  const frac = remaining / SIT_DURATION_MS;
+  const remaining = Math.max(0, durationMs - (now - startedAt));
+  const frac = remaining / durationMs;
 
   return (
     <main className="app-bg flex min-h-dvh flex-col items-center justify-center px-6 text-white">
@@ -82,7 +83,7 @@ export function TimerScreen({ startedAt, onCancel }: Props) {
         </div>
       </div>
       <div className="mt-6 text-lg font-semibold text-white/60">
-        You&apos;ve got this!
+        {bonus ? "Bonus sit! ⭐" : "You've got this!"}
       </div>
       <button
         onClick={onCancel}
