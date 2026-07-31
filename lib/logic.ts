@@ -42,7 +42,12 @@ export function computeStreak(data: AppData, todayKey: string): number {
   const anchor = data.meta.anchor;
   let streak = 0;
   let d = todayKey;
-  if (!getDay(data, d).day_complete && !(anchor && anchor.date === d)) {
+  const today = getDay(data, todayKey);
+  if (!today.day_complete && !(anchor && anchor.date === d)) {
+    // Sawyer's rule: a bonus counts the moment it's earned. On a
+    // not-yet-complete day it shows as +0.5 right away; once the day
+    // completes, the 1.5 day value includes it instead.
+    if (today.bonus_complete) streak += 0.5;
     d = addDays(d, -1);
   }
   // Bounded walk: streaks are finite; 10 years is a safe ceiling.
@@ -123,7 +128,6 @@ export function creditSit(
 ): CompletionResult {
   const next: AppData = structuredClone(data);
   const day = getDay(next, dateKey);
-  const prevStreak = computeStreak(next, dateKey);
 
   const sit: Sit = {
     id: newId(),
@@ -160,11 +164,12 @@ export function creditSit(
   next.meta.current_streak = newStreak;
   if (newStreak > next.meta.longest_streak) next.meta.longest_streak = newStreak;
 
-  // Milestones fire on crossing the threshold: whole-day jumps and
-  // half-day bonus bumps both count (e.g. 9.5 -> 11 earns 10).
+  // Milestones: any unearned badge at or below the new streak is awarded
+  // (whole-day jumps, half-day bonus bumps, and merged-in progress all
+  // count); the celebration shows the highest newly earned one.
   let milestone: number | null = null;
   for (const m of MILESTONES) {
-    if (!next.meta.milestones_earned.includes(m) && prevStreak < m && newStreak >= m) {
+    if (!next.meta.milestones_earned.includes(m) && newStreak >= m) {
       next.meta.milestones_earned.push(m);
       milestone = m;
     }
