@@ -3,7 +3,14 @@
 import { useState } from "react";
 import { AppData, OutputEntry } from "@/lib/types";
 import { creditDayManually, newId, setStreakManually } from "@/lib/logic";
-import { downloadFile, exportCSV, exportJSON, restoreLatestBackup } from "@/lib/storage";
+import {
+  downloadFile,
+  exportCSV,
+  exportJSON,
+  normalizeData,
+  restoreLatestBackup,
+} from "@/lib/storage";
+import { getSyncId, logout } from "@/lib/sync";
 import { addDays, dayKey } from "@/lib/time";
 
 interface Props {
@@ -22,6 +29,7 @@ export function ParentPanel({ data, now, onCommit, onClose }: Props) {
   const [logOccurred, setLogOccurred] = useState(true);
   const [logNote, setLogNote] = useState("");
   const [message, setMessage] = useState<string | null>(null);
+  const [syncCode] = useState(() => getSyncId());
 
   const flash = (msg: string) => {
     setMessage(msg);
@@ -87,6 +95,22 @@ export function ParentPanel({ data, now, onCommit, onClose }: Props) {
     } else {
       flash("No backup found");
     }
+  };
+
+  const handleCopyJoinLink = async () => {
+    try {
+      await navigator.clipboard.writeText(
+        `${window.location.origin}/?join=${syncCode}`
+      );
+      flash("Join link copied — text it to the other device");
+    } catch {
+      flash("Copy failed");
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    window.location.href = "/";
   };
 
   return (
@@ -258,6 +282,20 @@ export function ParentPanel({ data, now, onCommit, onClose }: Props) {
               Export CSV
             </button>
           </div>
+        </Section>
+
+        <Section title="Family login">
+          <p className="text-xs text-slate-400">
+            This device is logged into the family — progress syncs
+            automatically. New device? Just open the app there and type the
+            family password. (Or send this link, which skips typing:)
+          </p>
+          <button onClick={handleCopyJoinLink} className="btn-secondary self-start">
+            Copy join link
+          </button>
+          <button onClick={handleLogout} className="btn-secondary self-start">
+            Log out of family on this device
+          </button>
         </Section>
 
         <Section title="Recovery">

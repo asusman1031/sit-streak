@@ -62,7 +62,8 @@ export function runConfetti(
   canvas.height = h * dpr;
   ctx.scale(dpr, dpr);
 
-  const palette = milestone ? BLAST : PALETTES[variant % PALETTES.length];
+  // variant can be a fractional streak (bonus half-days) — floor before indexing
+  const palette = milestone ? BLAST : PALETTES[Math.floor(variant) % PALETTES.length];
   // fireworks every day; the milestone gets the explosion
   const mode: 3 | 4 = milestone ? 4 : 3;
   const particles: Particle[] = [];

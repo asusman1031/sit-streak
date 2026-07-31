@@ -21,7 +21,13 @@ function normalize(raw: unknown): AppData {
       milestones_earned: d.meta?.milestones_earned ?? [],
     },
     activeTimer: d.activeTimer ?? null,
+    updatedAt: typeof d.updatedAt === "number" ? d.updatedAt : 0,
   };
+}
+
+/** Normalize an untrusted blob (e.g. from the sync backend). */
+export function normalizeData(raw: unknown): AppData {
+  return normalize(raw);
 }
 
 export function loadData(): AppData {
@@ -47,6 +53,7 @@ export function loadData(): AppData {
 /** Every save also writes a timestamped backup key; a cleared primary key
  *  (or a bad write) can be recovered from the most recent backup. */
 export function saveData(data: AppData): void {
+  data.updatedAt = Date.now();
   const json = JSON.stringify(data);
   try {
     localStorage.setItem(KEY, json);
@@ -77,6 +84,16 @@ export function listBackups(): { key: string; ts: number }[] {
 function pruneBackups(keep: number = MAX_BACKUPS): void {
   for (const b of listBackups().slice(keep)) {
     localStorage.removeItem(b.key);
+  }
+}
+
+/** Wipe this device's local state (used by fresh-join links). */
+export function wipeLocal(): void {
+  try {
+    localStorage.removeItem(KEY);
+    for (const b of listBackups()) localStorage.removeItem(b.key);
+  } catch {
+    // ignore
   }
 }
 
@@ -117,11 +134,11 @@ export function exportCSV(data: AppData): string {
   const lines: string[] = [];
 
   lines.push("DAYS");
-  lines.push("date,morning_complete,afternoon_complete,day_complete,manually_credited");
+  lines.push("date,morning_complete,afternoon_complete,bonus_complete,day_complete,manually_credited");
   for (const key of Object.keys(data.days).sort()) {
     const d = data.days[key];
     lines.push(
-      [d.date, d.morning_complete, d.afternoon_complete, d.day_complete, d.manually_credited]
+      [d.date, d.morning_complete, d.afternoon_complete, Boolean(d.bonus_complete), d.day_complete, d.manually_credited]
         .map(csvEscape)
         .join(",")
     );

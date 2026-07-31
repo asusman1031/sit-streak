@@ -22,12 +22,20 @@ export function SitDoneOverlay({ window: win, hasAfternoonLeft, onDismiss }: Pro
       onClick={onDismiss}
     >
       <div className="pop-in flex flex-col items-center gap-4 rounded-3xl bg-white px-10 py-12 text-center text-slate-800 shadow-2xl">
-        <div className="bounce-slow text-6xl">✅</div>
+        <div className="bounce-slow text-6xl">{win === "bonus" ? "⭐" : "✅"}</div>
         <div className="text-2xl font-extrabold">
-          {win === "morning" ? "Morning sit done." : "Afternoon sit done."}
+          {win === "morning"
+            ? "Morning sit done."
+            : win === "afternoon"
+              ? "Afternoon sit done."
+              : "Bonus sit done!"}
         </div>
         <div className="text-lg font-medium text-slate-500">
-          {hasAfternoonLeft ? "One more later today." : "Nice work!"}
+          {win === "bonus"
+            ? "+0.5 to your streak"
+            : hasAfternoonLeft
+              ? "One more later today."
+              : "Nice work!"}
         </div>
       </div>
     </div>

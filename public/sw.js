@@ -1,6 +1,6 @@
 // Offline support: it's a timer and a counter, it must work with no network.
 // Navigations: network-first, cache fallback. Static assets: cache-first.
-const CACHE = "poppystreaks-v1"; // Poppy Streaks (Ashton's app)
+const CACHE = "poppystreaks-v2"; // bumped: sync + bonus sits build
 const PRECACHE = ["/", "/icon-192.png", "/icon-512.png", "/icon-512-maskable.png"];
 
 self.addEventListener("install", (event) => {

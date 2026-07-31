@@ -2,19 +2,20 @@
 
 import { useEffect, useRef, useState } from "react";
 import { runConfetti } from "@/lib/confetti";
-import { MILESTONE_EMOJI } from "@/lib/types";
+import { MILESTONE_EMOJI, formatStreak } from "@/lib/types";
 
 interface Props {
   streak: number;
+  prev: number;
   milestone: number | null;
   onDismiss: () => void;
 }
 
 /** Day complete: the payoff. Fireworks every day; a huge explosion on
  *  10-day milestones. Streak number animates up, dismissible by tap. */
-export function Celebration({ streak, milestone, onDismiss }: Props) {
+export function Celebration({ streak, prev, milestone, onDismiss }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [shown, setShown] = useState(Math.max(0, streak - 1));
+  const [shown, setShown] = useState(Math.max(0, Math.min(prev, streak)));
   const duration = milestone ? 7000 : 4000;
 
   useEffect(() => {
@@ -61,7 +62,10 @@ export function Celebration({ streak, milestone, onDismiss }: Props) {
             shown === streak ? "count-pop" : ""
           }`}
         >
-          {shown}
+          {formatStreak(shown)}
+          {!Number.isInteger(shown) && (
+            <span className="align-top text-7xl">⭐</span>
+          )}
         </div>
         <div className="text-2xl font-bold text-white/90">day streak</div>
       </div>

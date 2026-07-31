@@ -1,4 +1,4 @@
-export type SitWindow = "morning" | "afternoon";
+export type SitWindow = "morning" | "afternoon" | "bonus";
 
 export interface Sit {
   id: string;
@@ -15,6 +15,7 @@ export interface DayRec {
   afternoon_complete: boolean;
   day_complete: boolean;
   manually_credited: boolean;
+  bonus_complete?: boolean; // optional extra-credit sit: +0.5 day value
 }
 
 export interface OutputEntry {
@@ -34,7 +35,7 @@ export interface StreakAnchor {
 export interface Settings {
   morningEnd: string; // "HH:MM", morning sit completable before this time
   afternoonStart: string; // "HH:MM", afternoon sit completable after this time
-  flushFx: boolean; // Sawyer's dancing-poop flush finale at 0:00 (parent can disable)
+  flushFx: boolean; // dancing-poop flush finale at 0:00 (parent can disable)
 }
 
 export interface Meta {
@@ -59,10 +60,22 @@ export interface AppData {
   outputLog: OutputEntry[];
   meta: Meta;
   activeTimer: ActiveTimer | null;
+  updatedAt: number; // last local mutation; drives newest-wins in sync merges
 }
 
+// Ashton's durations: 5:00 regular sits, bonus is half that.
 export const SIT_DURATION_MS = 5 * 60 * 1000;
-// Sawyer's rule: every 10 days is a fireworks milestone.
+export const BONUS_DURATION_MS = 2.5 * 60 * 1000;
+
+export function durationFor(window: SitWindow): number {
+  return window === "bonus" ? BONUS_DURATION_MS : SIT_DURATION_MS;
+}
+
+/** Streaks can be fractional now (bonus = half days): "2.5", never "2.0". */
+export function formatStreak(n: number): string {
+  return Number.isInteger(n) ? String(n) : n.toFixed(1);
+}
+// Every 10 days is an explosion milestone.
 export const MILESTONES = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
 export const MILESTONE_EMOJI: Record<number, string> = {
@@ -99,5 +112,6 @@ export function emptyData(): AppData {
       celebration_index: 0,
     },
     activeTimer: null,
+    updatedAt: 0,
   };
 }

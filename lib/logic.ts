@@ -2,9 +2,9 @@ import {
   AppData,
   DayRec,
   MILESTONES,
-  SIT_DURATION_MS,
   Sit,
   SitWindow,
+  durationFor,
 } from "./types";
 import {
   addDays,
@@ -26,6 +26,7 @@ export function getDay(data: AppData, key: string): DayRec {
       afternoon_complete: false,
       day_complete: false,
       manually_credited: false,
+      bonus_complete: false,
     }
   );
 }
@@ -50,8 +51,10 @@ export function computeStreak(data: AppData, todayKey: string): number {
       streak += anchor.value;
       break;
     }
-    if (getDay(data, d).day_complete) {
-      streak++;
+    const day = getDay(data, d);
+    if (day.day_complete) {
+      // a bonus sit makes the day worth 1.5 instead of 1
+      streak += day.bonus_complete ? 1.5 : 1;
       d = addDays(d, -1);
     } else {
       break;
@@ -61,9 +64,11 @@ export function computeStreak(data: AppData, todayKey: string): number {
 }
 
 export interface WindowState {
-  window: SitWindow | null; // which window is open right now, if any
+  window: SitWindow | null; // which required window is open right now, if any
   morningDone: boolean;
   afternoonDone: boolean;
+  bonusDone: boolean;
+  bonusAvailable: boolean; // extra-credit sit: any time, once per day
   dayComplete: boolean;
   unlockAt: number | null; // epoch ms when the afternoon window opens (mid-day)
   todayKey: string;
@@ -92,6 +97,8 @@ export function windowState(data: AppData, now: number): WindowState {
     window,
     morningDone: day.morning_complete,
     afternoonDone: day.afternoon_complete,
+    bonusDone: Boolean(day.bonus_complete),
+    bonusAvailable: !day.bonus_complete,
     dayComplete: day.day_complete,
     unlockAt,
     todayKey,
@@ -105,7 +112,9 @@ export interface CompletionResult {
   milestone: number | null;
 }
 
-/** Credit a finished 5:00 sit. Guards against double-crediting a window. */
+/** Credit a finished sit (5:00 regular, 2:30 bonus). Guards against
+ *  double-crediting a window; a bonus never completes the day, it adds
+ *  +0.5 to a completed day's value. */
 export function creditSit(
   data: AppData,
   sitWindow: SitWindow,
@@ -114,26 +123,32 @@ export function creditSit(
 ): CompletionResult {
   const next: AppData = structuredClone(data);
   const day = getDay(next, dateKey);
+  const prevStreak = computeStreak(next, dateKey);
 
   const sit: Sit = {
     id: newId(),
     date: dateKey,
     window: sitWindow,
     started_at: startedAt,
-    completed_at: startedAt + SIT_DURATION_MS,
+    completed_at: startedAt + durationFor(sitWindow),
     completed: true,
   };
   next.sits.push(sit);
 
   const alreadyCredited =
-    sitWindow === "morning" ? day.morning_complete : day.afternoon_complete;
+    sitWindow === "morning"
+      ? day.morning_complete
+      : sitWindow === "afternoon"
+        ? day.afternoon_complete
+        : Boolean(day.bonus_complete);
   if (alreadyCredited) {
     next.activeTimer = null;
     return { data: next, dayCompleted: false, newStreak: next.meta.current_streak, milestone: null };
   }
 
   if (sitWindow === "morning") day.morning_complete = true;
-  else day.afternoon_complete = true;
+  else if (sitWindow === "afternoon") day.afternoon_complete = true;
+  else day.bonus_complete = true;
 
   const wasComplete = day.day_complete;
   day.day_complete = day.morning_complete && day.afternoon_complete;
@@ -145,11 +160,14 @@ export function creditSit(
   next.meta.current_streak = newStreak;
   if (newStreak > next.meta.longest_streak) next.meta.longest_streak = newStreak;
 
+  // Milestones fire on crossing the threshold: whole-day jumps and
+  // half-day bonus bumps both count (e.g. 9.5 -> 11 earns 10).
   let milestone: number | null = null;
-  if (dayCompleted && MILESTONES.includes(newStreak) &&
-      !next.meta.milestones_earned.includes(newStreak)) {
-    next.meta.milestones_earned.push(newStreak);
-    milestone = newStreak;
+  for (const m of MILESTONES) {
+    if (!next.meta.milestones_earned.includes(m) && prevStreak < m && newStreak >= m) {
+      next.meta.milestones_earned.push(m);
+      milestone = m;
+    }
   }
   if (dayCompleted) {
     next.meta.celebration_index = (next.meta.celebration_index + 1) % 4;
