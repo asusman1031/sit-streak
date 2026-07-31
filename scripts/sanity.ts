@@ -181,12 +181,21 @@ const at = (h: number, m = 0) => Date.UTC(2026, 6, 28, h + 4, m); // EDT: UTC-4
   check("bonus sit is 5 minutes", (bonusSit.completed_at ?? 0) - bonusSit.started_at, 5 * 60 * 1000);
 }
 {
-  // bonus on an incomplete day adds nothing yet, but counts once the day completes
+  // Sawyer's rule: a bonus counts the moment it's earned (+0.5 even on a
+  // not-yet-complete day), and folds into the 1.5 when the day completes
   let d = dataWith({ "2026-07-28": { morning_complete: true } });
   d = creditSit(d, "bonus", "2026-07-28", at(13)).data;
-  check("bonus alone leaves streak at 0", d.meta.current_streak, 0);
+  check("bonus counts immediately", d.meta.current_streak, 0.5);
   const r = creditSit(d, "afternoon", "2026-07-28", at(16));
-  check("day+bonus completes to 1.5", r.newStreak, 1.5);
+  check("day+bonus completes to 1.5 (no double count)", r.newStreak, 1.5);
+}
+{
+  // yesterday complete + today's bonus only: 1 + 0.5
+  const d = dataWith({
+    "2026-07-27": { day_complete: true, morning_complete: true, afternoon_complete: true },
+    "2026-07-28": { bonus_complete: true },
+  });
+  check("streak + immediate bonus", computeStreak(d, "2026-07-28"), 1.5);
 }
 {
   // milestone crossing via a half-day jump: 9.5 -> 11 earns the 10 badge
