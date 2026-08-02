@@ -201,6 +201,31 @@ export function recordCancelledSit(
   return next;
 }
 
+/** Parent panel day editor: set any day's flags directly. Marks the day
+ *  manually_credited when the edit completes a previously incomplete day,
+ *  so the export stays honest about how each record got there. */
+export function setDayFlags(
+  data: AppData,
+  dateKey: string,
+  flags: { morning: boolean; afternoon: boolean; bonus: boolean }
+): AppData {
+  const next: AppData = structuredClone(data);
+  const prev = getDay(next, dateKey);
+  const complete = flags.morning && flags.afternoon;
+  next.days[dateKey] = {
+    date: dateKey,
+    morning_complete: flags.morning,
+    afternoon_complete: flags.afternoon,
+    bonus_complete: flags.bonus,
+    day_complete: complete,
+    manually_credited: prev.manually_credited || (complete && !prev.day_complete),
+  };
+  const streak = computeStreak(next, dayKey(Date.now()));
+  next.meta.current_streak = streak;
+  if (streak > next.meta.longest_streak) next.meta.longest_streak = streak;
+  return next;
+}
+
 /** Parent panel: credit a whole day manually (travel, illness, real life). */
 export function creditDayManually(data: AppData, dateKey: string): AppData {
   const next: AppData = structuredClone(data);

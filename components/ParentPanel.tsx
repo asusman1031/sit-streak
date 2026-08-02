@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppData, OutputEntry } from "@/lib/types";
-import { creditDayManually, newId, setStreakManually } from "@/lib/logic";
+import { getDay, newId, setDayFlags, setStreakManually } from "@/lib/logic";
 import {
   downloadFile,
   exportCSV,
@@ -30,15 +30,44 @@ export function ParentPanel({ data, now, onCommit, onClose }: Props) {
   const [logNote, setLogNote] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [syncCode] = useState(() => getSyncId());
+  const [editMorning, setEditMorning] = useState(false);
+  const [editAfternoon, setEditAfternoon] = useState(false);
+  const [editBonus, setEditBonus] = useState(false);
+
+  // Load the selected day's current flags into the editor.
+  useEffect(() => {
+    const day = getDay(data, creditDate);
+    setEditMorning(day.morning_complete);
+    setEditAfternoon(day.afternoon_complete);
+    setEditBonus(Boolean(day.bonus_complete));
+  }, [creditDate, data]);
 
   const flash = (msg: string) => {
     setMessage(msg);
     setTimeout(() => setMessage(null), 2500);
   };
 
-  const handleCreditDay = () => {
+  const handleSaveDay = () => {
     if (!creditDate) return;
-    onCommit(creditDayManually(data, creditDate));
+    onCommit(
+      setDayFlags(data, creditDate, {
+        morning: editMorning,
+        afternoon: editAfternoon,
+        bonus: editBonus,
+      })
+    );
+    flash(`${creditDate} saved`);
+  };
+
+  const handleCreditFullDay = () => {
+    if (!creditDate) return;
+    onCommit(
+      setDayFlags(data, creditDate, {
+        morning: true,
+        afternoon: true,
+        bonus: editBonus,
+      })
+    );
     flash(`${creditDate} credited`);
   };
 
@@ -132,21 +161,52 @@ export function ParentPanel({ data, now, onCommit, onClose }: Props) {
           </div>
         )}
 
-        <Section title="Credit a day">
+        <Section title="Fix a day">
           <p className="text-xs text-slate-400">
-            Marks a full day complete (travel, illness, real life). Keeps a
-            legitimate streak alive.
+            Edit any day&apos;s record directly (forgot to record a sit,
+            travel, illness). Changes sync to all devices. Note: un-checking
+            a box may not stick if another device still holds the credit —
+            sync is designed to never lose a completed sit.
           </p>
+          <input
+            type="date"
+            value={creditDate}
+            max={todayKey}
+            onChange={(e) => setCreditDate(e.target.value)}
+            className="rounded-lg bg-slate-800 px-3 py-2 text-sm"
+          />
+          <div className="flex items-center gap-4 text-sm">
+            <label className="flex items-center gap-1.5">
+              <input
+                type="checkbox"
+                checked={editMorning}
+                onChange={(e) => setEditMorning(e.target.checked)}
+              />
+              Morning
+            </label>
+            <label className="flex items-center gap-1.5">
+              <input
+                type="checkbox"
+                checked={editAfternoon}
+                onChange={(e) => setEditAfternoon(e.target.checked)}
+              />
+              Afternoon
+            </label>
+            <label className="flex items-center gap-1.5">
+              <input
+                type="checkbox"
+                checked={editBonus}
+                onChange={(e) => setEditBonus(e.target.checked)}
+              />
+              ⭐ Bonus
+            </label>
+          </div>
           <div className="flex gap-2">
-            <input
-              type="date"
-              value={creditDate}
-              max={todayKey}
-              onChange={(e) => setCreditDate(e.target.value)}
-              className="flex-1 rounded-lg bg-slate-800 px-3 py-2 text-sm"
-            />
-            <button onClick={handleCreditDay} className="btn-primary">
-              Credit
+            <button onClick={handleSaveDay} className="btn-primary">
+              Save day
+            </button>
+            <button onClick={handleCreditFullDay} className="btn-secondary">
+              Credit full day
             </button>
           </div>
         </Section>
