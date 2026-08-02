@@ -1,6 +1,6 @@
 // Sanity checks for the day/window/streak logic. Run: npm run sanity
 import { addDays, dayKey, formatCountdown, minutesIntoDay, nyEpoch } from "../lib/time";
-import { computeStreak, creditDayManually, creditSit, setStreakManually, windowState } from "../lib/logic";
+import { computeStreak, creditDayManually, creditSit, setDayFlags, setStreakManually, windowState } from "../lib/logic";
 import { AppData, emptyData } from "../lib/types";
 
 let failures = 0;
@@ -210,6 +210,22 @@ const at = (h: number, m = 0) => Date.UTC(2026, 6, 28, h + 4, m); // EDT: UTC-4
   const r = creditSit(dataWith(nine), "afternoon", "2026-07-28", at(16));
   check("crossing 10 with halves", r.newStreak, 11);
   check("milestone earned on crossing", r.data.meta.milestones_earned.includes(10), true);
+}
+
+// --- day editor ---
+{
+  // forgot to record last night's afternoon sit: fixing the day restores the streak
+  let d = dataWith({
+    "2026-07-26": { day_complete: true, morning_complete: true, afternoon_complete: true },
+    "2026-07-27": { morning_complete: true, bonus_complete: true }, // incomplete -> streak broken
+  });
+  check("broken before fix", computeStreak(d, "2026-07-28"), 0);
+  d = setDayFlags(d, "2026-07-27", { morning: true, afternoon: true, bonus: true });
+  check("day editor restores streak", computeStreak(d, "2026-07-28"), 2.5);
+  check("editor-completed day marked manual", d.days["2026-07-27"].manually_credited, true);
+  // editing a bonus on an organically complete day does NOT mark it manual
+  d = setDayFlags(d, "2026-07-26", { morning: true, afternoon: true, bonus: true });
+  check("organic day stays organic", d.days["2026-07-26"].manually_credited, false);
 }
 
 // --- sync merge ---
